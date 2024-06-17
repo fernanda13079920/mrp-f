@@ -1,13 +1,13 @@
+// App.js
 import React, { useState } from "react";
-import { MyRoutes } from "./routers/Routes"; // Asumiendo que MyRoutes está correctamente exportado desde './routers/Routes'
 import styled from "styled-components";
 import { BrowserRouter } from "react-router-dom";
-import Sidebar from "./components/Sidebar"; // Importando Sidebar correctamente
+import Sidebar from "./components/Sidebar";
 import { Light, Dark } from "./styles/Themes";
 import { ThemeProvider } from "styled-components";
 import Login from "./Pages/Login";
-
-export const ThemeContext = React.createContext(null);
+import MyRoutes from "./routers/Routes"; // Asegúrate de que la ruta sea correcta según tu estructura
+import { ThemeContext } from "./App"; // Asegúrate de que la ruta sea correcta según tu estructura
 
 function App() {
   const [theme, setTheme] = useState("light");
@@ -20,7 +20,7 @@ function App() {
   };
 
   return (
-    <ThemeContext.Provider value={{ setTheme, theme }}>
+    <ThemeContext.Provider value={{ setTheme, theme, authenticated: isAuthenticated }}>
       <ThemeProvider theme={themeStyle}>
         <BrowserRouter>
           {isAuthenticated ? (
@@ -31,7 +31,7 @@ function App() {
                 handleLogout={handleLogout}
               />
               <MainContent>
-                <MyRoutes authenticated={isAuthenticated} />
+                <MyRoutes />
               </MainContent>
             </Container>
           ) : (

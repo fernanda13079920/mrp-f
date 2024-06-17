@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import { MyRoutes } from "./routers/Routes"; // Asumiendo que MyRoutes está correctamente exportado desde './routers/Routes'
-import styled from "styled-components";
 import { BrowserRouter } from "react-router-dom";
-import Sidebar from "./components/Sidebar"; // Importando Sidebar correctamente
-import { Light, Dark } from "./styles/Themes";
+import styled from "styled-components";
 import { ThemeProvider } from "styled-components";
+import { Light, Dark } from "./styles/Themes";
+import { ThemeContext } from "./App";
+import { Sidebar } from "./components/Sidebar";
+import { MyRoutes } from "./routers/Routes";
 import Login from "./Pages/Login";
-
-export const ThemeContext = React.createContext(null);
 
 function App() {
   const [theme, setTheme] = useState("light");
@@ -31,7 +30,7 @@ function App() {
                 handleLogout={handleLogout}
               />
               <MainContent>
-                <MyRoutes authenticated={isAuthenticated} />
+                <MyRoutes />
               </MainContent>
             </Container>
           ) : (

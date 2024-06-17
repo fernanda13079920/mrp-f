@@ -1,8 +1,15 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ListaTipoArticulo from './componentes/TipoArticulo';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
-});
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/tipoarticulos" element={<ListaTipoArticulo />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
