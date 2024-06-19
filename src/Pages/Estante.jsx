@@ -46,6 +46,17 @@ const fetchUbicaciones = async () => {
         console.error("Error fetching tipo estantes:", error);
     }
 };
+const [tipoUbicaciones, setTipoUbicaciones] = useState([]);
+
+// Función para obtener la lista de tipos de ubicaciones
+const fetchTipoUbicaciones = async () => {
+    try {
+        const response = await axios.get("http://127.0.0.1:8000/api/tipo-ubicacion");
+        setTipoUbicaciones(response.data.data);
+    } catch (error) {
+        console.error("Error fetching tipo ubicaciones:", error);
+    }
+};
 
 // Cargar la lista de tipos de estantes al cargar el componente
 useEffect(() => {
@@ -131,9 +142,10 @@ useEffect(() => {
         <Container>
             <div className="card shadow p-4">
                 <h1 className="text-primary mb-4">Listado de Estantes</h1>
-                <Button label="Nueva Ubicación" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
+                <Button label="Nuevo Estante" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
 
                 <DataTable value={estantes} className="p-datatable-sm">
+                    <Column field="tipo_ubicacion.nombre" header="Tipo Ubicacion"></Column>
                     <Column field="ubicacion.direccion" header="Direccion"></Column>
                     <Column field="cant_fila" header="Cantidad Filas"></Column>
                     <Column body={(rowData) => (

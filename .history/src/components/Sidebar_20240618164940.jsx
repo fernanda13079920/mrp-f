@@ -160,7 +160,7 @@ const linksArray = [
     ],
   },
   {
-    label: "Produccion",
+    label: "Prodcuccion",
     to: "/",
     subMenu: [
       {

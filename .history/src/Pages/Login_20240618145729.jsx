@@ -40,7 +40,43 @@ const Login = ({ setAuthenticated }) => {
       setLoading(false);
     }
   };
-
+  const handleLogout = async () => {
+    setLoading(true);
+    setError(null);
+  
+    try {
+      const authData = JSON.parse(localStorage.getItem('authData'));
+      if (!authData) {
+        throw new Error('No auth data found');
+      }
+  
+      const response = await axios.post('http://127.0.0.1:8000/api/logout', {
+        id: authData.id, // Suponiendo que 'id' es un campo relevante para el logout
+        rol_id: authData.rol_id,
+        persona_id: authData.persona_id,
+        username: authData.username,
+      });
+  
+      const { success, message, data } = response.data;
+  
+      if (success) {
+        // Limpiar cualquier dato de autenticación guardado localmente
+        localStorage.removeItem('authData');
+        setAuthenticated(false); // Marcar al usuario como no autenticado en el frontend
+        // Otras operaciones de limpieza según sea necesario
+  
+        // Redirigir a la página de login u otra página relevante
+        navigate('/login');
+      } else {
+        setError(message);
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   return (
     <div className="container-fluid" style={{ background: theme.bgtotal, minHeight: '100vh' }}>
       <div className="row justify-content-center align-items-center" style={{ minHeight: '100vh' }}>

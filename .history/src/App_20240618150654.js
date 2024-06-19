@@ -4,20 +4,17 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import { Light, Dark } from "./styles/Themes";
 import { AuthProvider } from './context/authContext';
-
 import Login from "./Pages/Login";
-import Roles from './Pages/Rol';
-import Usuarios from './Pages/Usuario';
+import TipoArticulos from './Pages/TipoArticulo';
 import TipoUbicaciones from './Pages/TipoUbicacion';
 import Ubicaciones from './Pages/Ubicacion';
+import Estantes from './Pages/Estante';
+import Procesos from './Pages/Proceso';
 import Productos from './Pages/Producto';
 import MateriasPrimas from './Pages/MateriaPrima';
-import Procesos from './Pages/Proceso';
-import Estantes from './Pages/Estante';
 import UbicacionArticulos from './Pages/UbicacionArticulo';
-import Proveedores from './Pages/Proveedor';
-
-import axios from 'axios';
+import Roles from './Pages/Rol';
+import axios from 'axios'; // Importa axios para realizar peticiones HTTP
 
 export const ThemeContext = createContext(null);
 
@@ -76,16 +73,15 @@ function App() {
                 />
                 <MainContent>
                   <Routes>
-                    <Route path="/rol" element={<Roles />} />
-                    <Route path="/usuario" element={<Usuarios />} />
+                    <Route path="/tipo-articulo" element={<TipoArticulos />} />
                     <Route path="/tipo-ubicacion" element={<TipoUbicaciones />} />
                     <Route path="/ubicacion" element={<Ubicaciones />} />
+                    <Route path="/estante" element={<Estantes />} />
+                    <Route path="/proceso" element={<Procesos />} />
                     <Route path="/producto" element={<Productos />} />
                     <Route path="/materia-prima" element={<MateriasPrimas />} />
-                    <Route path="/proceso" element={<Procesos />} />
-                    <Route path="/estante" element={<Estantes />} />
                     <Route path="/ubicacion-articulo" element={<UbicacionArticulos />} />
-                    <Route path="/proveedores" element={<Proveedores />} />
+                    <Route path="/rol" element={<Roles />} />
                   </Routes>
                 </MainContent>
               </Container>

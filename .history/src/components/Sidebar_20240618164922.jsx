@@ -160,12 +160,16 @@ const linksArray = [
     ],
   },
   {
-    label: "Produccion",
+    label: Prodcuccion",
     to: "/",
     subMenu: [
       {
-        label: "Orden de Produccion",
-        to: "/orden-produccion",
+        label: "Proveedores",
+        to: "/proveedores",
+      },
+      {
+        label: "Orden de Compra",
+        to: "/orden-compra",
       },
     ],
   },

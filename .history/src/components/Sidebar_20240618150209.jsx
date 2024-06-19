@@ -30,7 +30,43 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
   const CambiarTheme = () => {
     setTheme((theme) => (theme === "light" ? "dark" : "light"));
   };
-
+  const handleLogout = async () => {
+    setLoading(true);
+    setError(null);
+  
+    try {
+      const authData = JSON.parse(localStorage.getItem('authData'));
+      if (!authData) {
+        throw new Error('No auth data found');
+      }
+  
+      const response = await axios.post('http://127.0.0.1:8000/api/logout', {
+        id: authData.id, // Suponiendo que 'id' es un campo relevante para el logout
+        rol_id: authData.rol_id,
+        persona_id: authData.persona_id,
+        username: authData.username,
+      });
+  
+      const { success, message, data } = response.data;
+  
+      if (success) {
+        // Limpiar cualquier dato de autenticación guardado localmente
+        localStorage.removeItem('authData');
+        setAuthenticated(false); // Marcar al usuario como no autenticado en el frontend
+        // Otras operaciones de limpieza según sea necesario
+  
+        // Redirigir a la página de login u otra página relevante
+        navigate('/login');
+      } else {
+        setError(message);
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   return (
     <Container isOpen={sidebarOpen} themeUse={theme}>
       <button className="Sidebarbutton" onClick={ModSidebaropen}>
@@ -73,22 +109,21 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
       <Divider />
       {secondarylinksArray.map(({ icon, label, to }) => (
         <div className="LinkContainer" key={label}>
-        {label === "Salir" ? (
-          <button className="Links logout" onClick={handleLogout}> 
-            {sidebarOpen && <div className="Linkicon">{icon}</div>}
-            {sidebarOpen && <span>{label}</span>}
-          </button>
-        ) : (
-          <NavLink
-            to={to}
-            className={({ isActive }) => `Links${isActive ? ` active` : ``}`}
-          >
-            <div className="Linkicon">{icon}</div>
-            {sidebarOpen && <span>{label}</span>}
-          </NavLink>
-        )}
-      </div>
-      
+          {label === "Salir" ? (
+            <button className="Links logout" onClick={handleLogout}>
+              <div className="Linkicon">{icon}</div>
+              {sidebarOpen && <span>{label}</span>}
+            </button>
+          ) : (
+            <NavLink
+              to={to}
+              className={({ isActive }) => `Links${isActive ? ` active` : ``}`}
+            >
+              <div className="Linkicon">{icon}</div>
+              {sidebarOpen && <span>{label}</span>}
+            </NavLink>
+          )}
+        </div>
       ))}
       <Divider />
       <div className="Themecontent">
@@ -106,20 +141,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
 
 const linksArray = [
   {
-    label: "Usuario",
-    to: "/",
-    subMenu: [
-      {
-        label: "Rol",
-        to: "/rol",
-      },
-      {
-        label: "Usuarios",
-        to: "/usuarios",
-      },
-    ],
-  },
-  {
     label: "Articulos",
     to: "/",
     subMenu: [
@@ -134,17 +155,9 @@ const linksArray = [
     ],
   },
   {
-    label: "Proceso",
-    to: "/Proceso",
-  },
-  {
     label: "Ubicacion",
     to: "/",
     subMenu: [
-      {
-        label: "Tipo Ubicacion",
-        to: "/tipo-ubicacion",
-      },
       {
         label: "Ubicacion",
         to: "/ubicacion",
@@ -160,36 +173,47 @@ const linksArray = [
     ],
   },
   {
-    label: "Produccion",
+    label: "Proceso",
+    to: "/Proceso",
+  },
+  {
+    label: "Usuario",
     to: "/",
     subMenu: [
       {
-        label: "Orden de Produccion",
-        to: "/orden-produccion",
+        label: "Rol",
+        to: "/rol",
+      },
+      {
+        label: "Estante",
+        to: "/estante",
+      },
+      {
+        label: "Ubicacion Articulo",
+        to: "/ubicacion-articulo",
       },
     ],
   },
   {
-    label: "Compra",
-    to: "/",
-    subMenu: [
-      {
-        label: "Proveedores",
-        to: "/proveedores",
-      },
-      {
-        label: "Orden de Compra",
-        to: "/orden-compra",
-      },
-    ],
+    label: "Ordenes",
+    to: "/productos",
   },
   {
     label: "Reportes",
-    to: "/",
+    to: "/diagramas",
+  },
+  {
+    label: "Reportes",
+    to: "/reportes",
   },
 ];
 
 const secondarylinksArray = [
+  {
+    label: "Configuración",
+    icon: <AiOutlineSetting />,
+    to: "/null",
+  },
   {
     label: "Salir",
     icon: <MdLogout />,

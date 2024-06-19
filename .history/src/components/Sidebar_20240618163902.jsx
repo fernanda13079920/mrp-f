@@ -106,23 +106,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
 
 const linksArray = [
   {
-    label: "Usuario",
-    to: "/",
-    subMenu: [
-      {
-        label: "Rol",
-        to: "/rol",
-      },
-      {
-        label: "Usuarios",
-        to: "/usuarios",
-      },
-    ],
-  },
-  {
     label: "Articulos",
     to: "/",
     subMenu: [
+      {
+        label: "Producto",
+        to: "/producto",
+      },
       {
         label: "Producto",
         to: "/producto",
@@ -134,17 +124,9 @@ const linksArray = [
     ],
   },
   {
-    label: "Proceso",
-    to: "/Proceso",
-  },
-  {
     label: "Ubicacion",
     to: "/",
     subMenu: [
-      {
-        label: "Tipo Ubicacion",
-        to: "/tipo-ubicacion",
-      },
       {
         label: "Ubicacion",
         to: "/ubicacion",
@@ -160,32 +142,38 @@ const linksArray = [
     ],
   },
   {
-    label: "Produccion",
+    label: "Proceso",
+    to: "/Proceso",
+  },
+  {
+    label: "Usuario",
     to: "/",
     subMenu: [
       {
-        label: "Orden de Produccion",
-        to: "/orden-produccion",
+        label: "Rol",
+        to: "/rol",
+      },
+      {
+        label: "Estante",
+        to: "/estante",
+      },
+      {
+        label: "Ubicacion Articulo",
+        to: "/ubicacion-articulo",
       },
     ],
   },
   {
-    label: "Compra",
-    to: "/",
-    subMenu: [
-      {
-        label: "Proveedores",
-        to: "/proveedores",
-      },
-      {
-        label: "Orden de Compra",
-        to: "/orden-compra",
-      },
-    ],
+    label: "Ordenes",
+    to: "/productos",
   },
   {
     label: "Reportes",
-    to: "/",
+    to: "/diagramas",
+  },
+  {
+    label: "Reportes",
+    to: "/reportes",
   },
 ];
 

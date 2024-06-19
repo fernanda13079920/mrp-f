@@ -6,7 +6,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
-import { Calendar } from 'primereact/calendar';
+import { Calendar } from 'primereact/calendar';0
 import { MultiSelect } from 'primereact/multiselect';
 import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/saga-blue/theme.css';
@@ -23,6 +23,7 @@ const Productos = () => {
     const materia = 1;
     const tipoId = 2;
 
+    // Función para obtener productos filtrados por tipo
     const fetchProductos = async () => {
         try {
             const response = await axios.get("http://127.0.0.1:8000/api/articulo");
@@ -30,7 +31,7 @@ const Productos = () => {
             const filteredProductos = allProductos.filter(producto => producto.tipo_id === tipoId);
             setProductos(filteredProductos);
         } catch (error) {
-            console.error("Error fetching productos:", error);
+            console.error("Error al obtener productos:", error);
         }
     };
 
@@ -38,7 +39,9 @@ const Productos = () => {
         fetchProductos();
     }, []);
 
+    // Función para obtener materias primas filtradas por tipo
     const [materiasPrimas, setMateriasPrimas] = useState([]);
+
     const fetchMateriasPrimas = async () => {
         try {
             const response = await axios.get("http://127.0.0.1:8000/api/articulo");
@@ -46,7 +49,7 @@ const Productos = () => {
             const filteredMateriasPrimas = allMateriasPrimas.filter(producto => producto.tipo_id === materia);
             setMateriasPrimas(filteredMateriasPrimas);
         } catch (error) {
-            console.error("Error fetching productos:", error);
+            console.error("Error al obtener materias primas:", error);
         }
     };
 
@@ -54,6 +57,7 @@ const Productos = () => {
         fetchMateriasPrimas();
     }, []);
 
+    // Función para obtener tipos de artículos
     const [tipoArticulos, setTipoArticulos] = useState([]);
 
     const fetchTipoArticulos = async () => {
@@ -61,7 +65,7 @@ const Productos = () => {
             const response = await axios.get("http://127.0.0.1:8000/api/tipo-articulo");
             setTipoArticulos(response.data.data);
         } catch (error) {
-            console.error("Error fetching tipo ubicaciones:", error);
+            console.error("Error al obtener tipos de artículos:", error);
         }
     };
 
@@ -69,12 +73,14 @@ const Productos = () => {
         fetchTipoArticulos();
     }, []);
 
+    // Función para manejar cambios en los campos del formulario
     const onInputChange = (e, name) => {
         const val = e.target.value;
         let updatedProducto = { ...producto, [name]: val };
         setProducto(updatedProducto);
     };
 
+    // Función para manejar cambios en los materiales seleccionados
     const onMaterialChange = (e) => {
         const selectedMaterials = e.value;
         const updatedMaterials = selectedMaterials.map(materialId => {
@@ -84,24 +90,28 @@ const Productos = () => {
         setProducto({ ...producto, materiales: updatedMaterials });
     };
 
+    // Función para manejar cambios en la cantidad de materiales
     const onMaterialQuantityChange = (e, materialId) => {
         const cantidad = e.target.value;
-        const updatedMaterials = producto.materiales.map(material => 
+        const updatedMaterials = producto.materiales.map(material =>
             material.id === materialId ? { ...material, cantidad: cantidad } : material
         );
         setProducto({ ...producto, materiales: updatedMaterials });
     };
 
+    // Función para abrir el formulario de nuevo producto
     const openNew = () => {
         setProducto({ id: null, tipo_id: '', nombre: '', descripcion: '', fecha_creacion: '', fecha_vencimiento: '', serie: '', materiales: [] });
         setProductDialog(true);
     };
 
+    // Función para cerrar el formulario
     const hideDialog = () => {
         setProductDialog(false);
         setSubmitted(false);
     };
 
+    // Función para guardar un producto
     const saveProducto = async () => {
         setSubmitted(true);
 
@@ -116,23 +126,26 @@ const Productos = () => {
                 setProducto(null);
                 fetchProductos();
             } catch (error) {
-                console.log("Error saving producto:", error);
+                console.log("Error al guardar el producto:", error);
             }
         } else {
             console.log("Datos no válidos:", producto);
         }
     };
 
+    // Función para editar un producto
     const editProducto = (producto) => {
         setProducto(producto);
         setProductDialog(true);
     };
 
+    // Función para confirmar eliminación de un producto
     const confirmDeleteProducto = (producto) => {
         setProducto(producto);
         setDeleteProductsDialog(true);
     };
 
+    // Función para eliminar un producto
     const deleteProducto = async () => {
         try {
             await axios.delete(`http://127.0.0.1:8000/api/articulo/${producto.id}`);
@@ -140,13 +153,17 @@ const Productos = () => {
             setDeleteProductsDialog(false);
             setProducto(null);
         } catch (error) {
-            console.log("Error deleting producto:", error);
+            console.log("Error al eliminar el producto:", error);
         }
     };
+
+    // Función para ver los materiales de un producto
     const verMaterial = (producto) => {
         setProducto(producto);
         setVerDialog(true);
     };
+
+    // Footer del Dialog de confirmación de eliminación de productos
     const deleteProductsDialogFooter = (
         <React.Fragment>
             <Button label="Cancelar" icon="pi pi-times" className="p-button-outlined p-button-secondary" onClick={() => setDeleteProductsDialog(false)} />
@@ -158,13 +175,13 @@ const Productos = () => {
         <div className="container mt-4">
             <div className="card shadow p-4">
                 <h1 className="text-primary mb-4">Listado de Productos</h1>
-                
+
                 <Button label="Nuevo Producto" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
 
                 <DataTable value={productos} className="p-datatable-sm">
                     <Column field="nombre" header="Nombre"></Column>
-                    <Column field="descripcion" header="Descripcion"></Column>
-                    <Column field="fecha_creacion" header="Creacion"></Column>
+                    <Column field="descripcion" header="Descripción"></Column>
+                    <Column field="fecha_creacion" header="Creación"></Column>
                     <Column field="fecha_vencimiento" header="Vencimiento"></Column>
                     <Column field="serie" header="Serie"></Column>
                     <Column field="cantidad" header="Cantidad"></Column>
@@ -174,10 +191,11 @@ const Productos = () => {
                             <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editProducto(rowData)} />
                             <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteProducto(rowData)} />
                         </div>
-                    )} style={{ textAlign: 'center', width: '12em' }} />
+                    )} style={{ textAlign: 'center', width: '15em' }} />
                 </DataTable>
 
-                <Dialog visible={productDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`${producto ? 'Editar' : 'Nuevo'} Producto`} modal className="p-fluid" onHide={hideDialog}>
+                {/* Dialog para editar o crear un producto */}
+                <Dialog visible={productDialog} style={{ width: '40rem', overflowY: 'auto', paddingBottom: '0' }} header={`${producto ? 'Editar' : 'Nuevo'} Producto`} modal className="p-fluid" onHide={hideDialog}>
                     <div className="p-field">
                         <label htmlFor="tipo-articulo" className="font-weight-bold">Tipo</label>
                         <Dropdown
@@ -191,7 +209,7 @@ const Productos = () => {
                         />
                         {submitted && !producto?.tipo_id && <small className="p-error">El tipo es requerido.</small>}
                     </div>
-                    
+
                     <div className="p-field">
                         <label htmlFor="nombre" className="font-weight-bold">Nombre</label>
                         <InputText id="nombre" value={producto?.nombre || ''} onChange={(e) => onInputChange(e, 'nombre')} required autoFocus className="form-control" />
@@ -199,28 +217,31 @@ const Productos = () => {
                     </div>
                     
                     <div className="p-field">
-                        <label htmlFor="descripcion" className="font-weight-bold">Descripcion</label>
+                        <label htmlFor="descripcion" className="font-weight-bold">Descripción</label>
                         <InputText id="descripcion" value={producto?.descripcion || ''} onChange={(e) => onInputChange(e, 'descripcion')} required autoFocus className="form-control" />
                         {submitted && !producto?.descripcion && <small className="p-error">La descripción es requerida.</small>}
                     </div>
 
                     <div className="p-field">
-                        <label htmlFor="fecha_creacion" className="font-weight-bold">Fecha Creacion</label>
+                        <label htmlFor="fecha_creacion" className="font-weight-bold">Fecha Creación</label>
                         <Calendar id="fecha_creacion" value={producto?.fecha_creacion || null} onChange={(e) => onInputChange(e, 'fecha_creacion')} required showIcon className="form-control" />
                         {submitted && !producto?.fecha_creacion && <small className="p-error">La fecha de creación es requerida.</small>}
                     </div>
+                    
                     <div className="p-field">
                         <label htmlFor="fecha_vencimiento" className="font-weight-bold">Fecha Vencimiento</label>
-                        <Calendar id="fecha_vencimiento"                            value={producto?.fecha_vencimiento || null} onChange={(e) => onInputChange(e, 'fecha_vencimiento')} required showIcon className="form-control" />
+                        <Calendar id="fecha_vencimiento" value={producto?.fecha_vencimiento || null} onChange={(e) => onInputChange(e, 'fecha_vencimiento')} required showIcon className="form-control" />
                         {submitted && !producto?.fecha_vencimiento && <small className="p-error">La fecha de vencimiento es requerida.</small>}
                     </div>
+                    
                     <div className="p-field">
                         <label htmlFor="serie" className="font-weight-bold">Serie</label>
                         <InputText id="serie" value={producto?.serie || ''} onChange={(e) => onInputChange(e, 'serie')} required autoFocus className="form-control" />
                         {submitted && !producto?.serie && <small className="p-error">La serie es requerida.</small>}
                     </div>
+                    
                     <div className="p-field">
-                        <label htmlFor="materiasPrimas" className="font-weight-bold">Materiales</label>
+                        <label htmlFor="materiasPrimas" className="font-weight-bold">Materias Primas</label>
                         <MultiSelect
                             id="materiasPrimas"
                             value={producto?.materiales.map(m => m.id) || []}
@@ -235,18 +256,23 @@ const Productos = () => {
                             <small className="p-error">Las materias primas son requeridas.</small>
                         )}
                     </div>
+
+                    {/* Renderizar la cantidad de cada material */}
                     {producto?.materiales.map(material => (
                         <div className="p-field" key={material.id}>
                             <label htmlFor={`cantidad-${material.id}`} className="font-weight-bold">{materiasPrimas.find(mp => mp.id === material.id)?.nombre} - Cantidad</label>
-                            <InputText id={`cantidad-${material.id}`} value={material.pivot.cantidad} onChange={(e) => onMaterialQuantityChange(e, material.id)} type="number" min="1" className="form-control" />
+                            <InputText id={`cantidad-${material.id}`} value={material.cantidad} onChange={(e) => onMaterialQuantityChange(e, material.id)} type="number" min="1" className="form-control" />
                         </div>
                     ))}
+
+                    {/* Botones de acción */}
                     <div className="p-d-flex p-jc-end mt-4">
                         <Button label="Cancelar" icon="pi pi-times" className="p-button-text p-button-outlined p-button-secondary" onClick={hideDialog} />
                         <Button label="Guardar" icon="pi pi-check" className="p-button p-button-primary p-button-outlined p-ml-2" onClick={saveProducto} />
                     </div>
                 </Dialog>
 
+                {/* Dialog para confirmar eliminación de productos */}
                 <Dialog visible={deleteProductsDialog} style={{ width: '30rem' }} header="Confirmación" modal footer={deleteProductsDialogFooter} onHide={() => setDeleteProductsDialog(false)}>
                     <div className="p-d-flex p-ai-center p-p-3">
                         <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem', color: 'var(--danger-color)' }} />
@@ -255,13 +281,15 @@ const Productos = () => {
                         )}
                     </div>
                 </Dialog>
+
+                {/* Dialog para ver materiales del producto */}
                 <Dialog visible={verDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`Materiales del Producto - ${producto?.nombre}`} modal className="p-fluid" onHide={() => setVerDialog(false)} closable={true}>
                     <div className="p-field">
-                    <label className="font-weight-bold">Materiales</label>
-                    <DataTable value={producto?.materiales} className="p-datatable-sm">
-                    <Column field="nombre" header="Nombre"></Column>
-                    <Column field="pivot.cantidad" header="Cantidad"></Column>
-                    </DataTable>
+                        <label className="font-weight-bold">Materiales</label>
+                        <DataTable value={producto?.materiales} className="p-datatable-sm">
+                            <Column field="nombre" header="Nombre"></Column>
+                            <Column field="cantidad" header="Cantidad"></Column>
+                        </DataTable>
                     </div>
                 </Dialog>
 
