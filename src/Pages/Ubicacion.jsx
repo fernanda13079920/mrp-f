@@ -129,7 +129,7 @@ useEffect(() => {
     return (
         <div className="container mt-4">
             <div className="card shadow p-4">
-                <h1 className="text-primary mb-4">Listado de Ubicaciones</h1>
+                <h2 className="text-primary mb-4">Listado de Ubicaciones</h2>
                 <Button label="Nueva Ubicación" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
 
                 <DataTable value={ubicaciones} className="p-datatable-sm">
@@ -176,7 +176,7 @@ useEffect(() => {
                     <div className="p-d-flex p-ai-center p-p-3">
                         <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem', color: 'var(--danger-color)' }} />
                         {ubicacion && (
-                            <span>¿Seguro que quieres eliminar el tipo de ubicación <b>{ubicacion.nombre}</b>?</span>
+                            <span>¿Seguro que quieres eliminar el tipo de ubicación <b>{ubicacion.direccion}</b>?</span>
                         )}
                     </div>
                 </Dialog>

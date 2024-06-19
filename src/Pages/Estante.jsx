@@ -145,7 +145,6 @@ useEffect(() => {
                 <Button label="Nuevo Estante" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
 
                 <DataTable value={estantes} className="p-datatable-sm">
-                    <Column field="tipo_ubicacion.nombre" header="Tipo Ubicacion"></Column>
                     <Column field="ubicacion.direccion" header="Direccion"></Column>
                     <Column field="cant_fila" header="Cantidad Filas"></Column>
                     <Column body={(rowData) => (
@@ -158,7 +157,7 @@ useEffect(() => {
 
                 <Dialog visible={productDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`${estante ? 'Editar' : 'Nuevo'} Estante`} modal className="p-fluid" onHide={hideDialog}>
                     
-                                <div className="p-field">
+                    <div className="p-field">
                     <label htmlFor="ubicacion" className="font-weight-bold">Ubicación</label>
                     <Dropdown
                         id="ubicacion"

@@ -45,23 +45,26 @@ const Login = ({ setAuthenticated }) => {
     <div className="container-fluid" style={{ background: theme.bgtotal, minHeight: '100vh' }}>
       <div className="row justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
         <div className="col-md-4">
-          <Panel header="Login" className="panel shadow">
+          <Panel header="Inicio de sesión" className="panel shadow">
             <div className="card-body">
-              <h2 className="card-title text-center mb-4">Login</h2>
+              <h2 className="card-title text-center mb-4">Inicio de sesión</h2>
               <form onSubmit={handleLogin}>
-                <div className="card flex justify-content-center">
-                  <FloatLabel>
+                <div className="d-flex flex-column align-items-center">
+                  <FloatLabel className="w-100 mb-3">
                     <InputText
                       id="username"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Enter your username"
                       required
+                      className="w-100"
                     />
-                    <label htmlFor="username">Username</label>
+                    <label htmlFor="username">Usuario</label>
                   </FloatLabel>
-                  <br />
-                  <FloatLabel>
+
+                  <div className="mt-2 mb-2 w-100"></div>
+
+                  <FloatLabel className="w-100 mb-3">
                     <InputText
                       id="password"
                       type="password"
@@ -69,15 +72,21 @@ const Login = ({ setAuthenticated }) => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
                       required
+                      className="w-100"
                     />
-                    <label htmlFor="password">Password</label>
+                    <label htmlFor="password">Contraseña</label>
                   </FloatLabel>
-                </div>
-                <br />
-                <br />
-                {error && <p className="text-danger mt-3">{error}</p>}
-                <div className="derecha p-5">
-                  <Button label={loading ? "Logging in..." : "Login"} severity="success" type="submit" disabled={loading} />
+
+                  {error && <p className="text-danger mt-3">{error}</p>}
+
+                  <div className="d-flex justify-content-center mt-3">
+                    <Button
+                      label={loading ? "Iniciando sesión..." : "Iniciar sesión"}
+                      type="submit"
+                      className="p-button-success"
+                      disabled={loading}
+                    />
+                  </div>
                 </div>
               </form>
             </div>

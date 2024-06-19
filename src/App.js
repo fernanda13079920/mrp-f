@@ -76,6 +76,7 @@ function App() {
                 />
                 <MainContent>
                   <Routes>
+                    <Route path="/" element={<Login />} />
                     <Route path="/rol" element={<Roles />} />
                     <Route path="/usuario" element={<Usuarios />} />
                     <Route path="/tipo-ubicacion" element={<TipoUbicaciones />} />

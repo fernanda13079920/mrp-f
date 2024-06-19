@@ -11,6 +11,7 @@ import {
 } from "react-icons/ai";
 import { MdOutlineAnalytics, MdLogout } from "react-icons/md";
 import { ThemeContext } from "../App";
+
 const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
   const [openIndexes, setOpenIndexes] = useState([]);
 
@@ -32,24 +33,24 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
   };
 
   return (
-    <Container isOpen={sidebarOpen} themeUse={theme}>
+    <Container isopen={sidebarOpen} themeuse={theme}>
       <button className="Sidebarbutton" onClick={ModSidebaropen}>
         <AiOutlineLeft />
       </button>
       <div className="Logocontent">
         <div className="imgcontent">
-          <img src={logo} alt="Logo" style={{ width: '50px', height: 'auto' }}/>
+          <img src={logo} alt="Logo" style={{ width: '40px', height: '40px' }}/>
+          <h2>MRP</h2>
         </div>
-        <h2>MRP</h2>
       </div>
-      {linksArray.map(({ icon, label, to, subMenu }, index) => (
+      {linksArray.map(({ label, to, subMenu }, index) => (
         <div key={label}>
           <div className="LinkContainer" onClick={() => toggleSubMenu(index)}>
             <NavLink
               to={to}
               className={({ isActive }) => `Links${isActive ? ` active` : ``}`}
             >
-              <div className="Linkicon">{icon}</div>
+              <div className="Linkicon">{getIcon(label)}</div>
               {sidebarOpen && <span>{label}</span>}
             </NavLink>
           </div>
@@ -71,31 +72,34 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
         </div>
       ))}
       <Divider />
-      {secondarylinksArray.map(({ icon, label, to }) => (
+      {secondarylinksArray.map(({ label, to, icon }) => (
         <div className="LinkContainer" key={label}>
-        {label === "Salir" ? (
-          <button className="Links logout" onClick={handleLogout}> 
-            {sidebarOpen && <div className="Linkicon">{icon}</div>}
-            {sidebarOpen && <span>{label}</span>}
-          </button>
-        ) : (
-          <NavLink
-            to={to}
-            className={({ isActive }) => `Links${isActive ? ` active` : ``}`}
-          >
-            <div className="Linkicon">{icon}</div>
-            {sidebarOpen && <span>{label}</span>}
-          </NavLink>
-        )}
-      </div>
-      
+          {label === "Salir" ? (
+            <button className="Links logout" onClick={handleLogout}>
+              {sidebarOpen && <div className="Linkicon">{icon}</div>}
+              {sidebarOpen && <span>{label}</span>}
+            </button>
+          ) : (
+            <NavLink
+              to={to}
+              className={({ isActive }) => `Links${isActive ? ` active` : ``}`}
+            >
+              <div className="Linkicon">{getIcon(label)}</div>
+              {sidebarOpen && <span>{label}</span>}
+            </NavLink>
+          )}
+        </div>
       ))}
       <Divider />
       <div className="Themecontent">
         {sidebarOpen && <span className="titletheme">Dark mode</span>}
         <div className="Togglecontent">
           <label className="switch">
-            <input type="checkbox" onChange={CambiarTheme} checked={theme === 'dark'} />
+            <input
+              type="checkbox"
+              onChange={CambiarTheme}
+              checked={theme === "dark"}
+            />
             <span className="slider"></span>
           </label>
         </div>
@@ -107,7 +111,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
 const linksArray = [
   {
     label: "Usuario",
-    to: "/",
     subMenu: [
       {
         label: "Rol",
@@ -115,13 +118,12 @@ const linksArray = [
       },
       {
         label: "Usuarios",
-        to: "/usuarios",
+        to: "/usuario",
       },
     ],
   },
   {
     label: "Articulos",
-    to: "/",
     subMenu: [
       {
         label: "Producto",
@@ -139,7 +141,6 @@ const linksArray = [
   },
   {
     label: "Ubicacion",
-    to: "/",
     subMenu: [
       {
         label: "Tipo Ubicacion",
@@ -161,7 +162,6 @@ const linksArray = [
   },
   {
     label: "Produccion",
-    to: "/",
     subMenu: [
       {
         label: "Orden de Produccion",
@@ -171,7 +171,6 @@ const linksArray = [
   },
   {
     label: "Compra",
-    to: "/",
     subMenu: [
       {
         label: "Proveedores",
@@ -183,17 +182,13 @@ const linksArray = [
       },
     ],
   },
-  {
-    label: "Reportes",
-    to: "/",
-  },
 ];
 
 const secondarylinksArray = [
   {
     label: "Salir",
     icon: <MdLogout />,
-    to: "/null",
+    to: "/",
   },
 ];
 
@@ -204,13 +199,13 @@ const Container = styled.div`
   top: 0;
   left: 0;
   height: 100vh;
-  width: ${({ isOpen }) => (isOpen ? '250px' : '60px')};
+  width: ${({ isopen }) => (isopen ? "250px" : "60px")};
   transition: width 0.3s;
   padding-top: 20px;
   z-index: 10;
 
   @media (max-width: 768px) {
-    width: ${({ isOpen }) => (isOpen ? '200px' : '50px')};
+    width: ${({ isopen }) => (isopen ? "200px" : "50px")};
   }
 
   .Sidebarbutton {
@@ -221,13 +216,14 @@ const Container = styled.div`
     height: 32px;
     border-radius: 50%;
     background: ${(props) => props.theme.bgtgderecha};
-    box-shadow: 0 0 4px ${(props) => props.theme.bg3}, 0 0 7px ${(props) => props.theme.bg};
+    box-shadow: 0 0 4px ${(props) => props.theme.bg3},
+      0 0 7px ${(props) => props.theme.bg};
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s;
-    transform: ${({ isOpen }) => (isOpen ? `initial` : `rotate(180deg)`)};
+    transform: ${({ isopen }) => (isopen ? `initial` : `rotate(180deg)`)};
     border: none;
     letter-spacing: inherit;
     color: inherit;
@@ -251,10 +247,10 @@ const Container = styled.div`
       }
       cursor: pointer;
       transition: all 0.3s;
-      transform: ${({ isOpen }) => (isOpen ? `scale(0.7)` : `scale(0.5)`)};
+      transform: ${({ isopen }) => (isopen ? `scale(0.7)` : `scale(0.5)`)};
     }
     h2 {
-      display: ${({ isOpen }) => (isOpen ? `block` : `none`)};
+      display: ${({ isopen }) => (isopen ? `block` : `none`)};
     }
   }
 
@@ -279,7 +275,7 @@ const Container = styled.div`
         }
       }
       span {
-        display: ${({ isOpen }) => (isOpen ? 'inline' : 'none')};
+        display: ${({ isopen }) => (isopen ? "inline" : "none")};
       }
       &.active {
         .Linkicon {
@@ -306,7 +302,7 @@ const Container = styled.div`
         }
       }
       span {
-        display: ${({ isOpen }) => (isOpen ? 'inline' : 'none')};
+        display: ${({ isopen }) => (isopen ? "inline" : "none")};
       }
       :hover {
         background: ${(props) => props.theme.bg3};
@@ -315,11 +311,11 @@ const Container = styled.div`
   }
 
   .SubMenu {
-    padding-left: ${({ isOpen }) => (isOpen ? '90px' : '0')};
+    padding-left: ${({ isopen }) => (isopen ? "90px" : "0")};
     .SubLinks {
       display: flex;
       align-items: center;
-            text-decoration: none;
+      text-decoration:      none;
       padding: calc(${v.smSpacing} - 2px) 0;
       color: ${(props) => props.theme.text};
       height: 40px;
@@ -327,7 +323,7 @@ const Container = styled.div`
         color: ${(props) => props.theme.bg4};
       }
       span {
-        display: ${({ isOpen }) => (isOpen ? 'inline' : 'none')};
+        display: ${({ isopen }) => (isopen ? "inline" : "none")};
       }
     }
   }
@@ -340,13 +336,13 @@ const Container = styled.div`
       display: block;
       padding: 10px;
       font-weight: 700;
-      opacity: ${({ isOpen }) => (isOpen ? `1` : `0`)};
+      opacity: ${({ isopen }) => (isopen ? `1` : `0`)};
       transition: all 0.3s;
       white-space: nowrap;
       overflow: hidden;
     }
     .Togglecontent {
-      margin: ${({ isOpen }) => (isOpen ? `auto 40px` : `auto 15px`)};
+      margin: ${({ isopen }) => (isopen ? `auto 40px` : `auto 15px`)};
       width: 36px;
       height: 20px;
       border-radius: 10px;
@@ -402,4 +398,24 @@ const Divider = styled.div`
   margin: ${v.lgSpacing} 0;
 `;
 
+function getIcon(label) {
+  switch (label) {
+    case "Usuario":
+      return <AiOutlineHome />;
+    case "Articulos":
+      return <AiOutlineApartment />;
+    case "Proceso":
+      return <AiOutlineSetting />;
+    case "Produccion":
+      return <MdOutlineAnalytics />;
+    case "Compra":
+      return <AiOutlineApartment />;
+    case "Salir":
+      return <MdLogout />;
+    default:
+      return null;
+  }
+}
+
 export default Sidebar;
+
