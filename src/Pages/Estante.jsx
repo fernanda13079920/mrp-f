@@ -6,21 +6,29 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import 'primeicons/primeicons.css';
-import 'primereact/resources/themes/saga-blue/theme.css'; // Tema de PrimeReact
-import 'primereact/resources/primereact.min.css'; // Estilos base de PrimeReact
-import 'primeflex/primeflex.css'; // Estilos de PrimeFlex para alineación y disposición
+import 'primereact/resources/themes/saga-blue/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeflex/primeflex.css';
 import { Dropdown } from 'primereact/dropdown';
 import styled, { ThemeContext } from 'styled-components';
+import { AuthContext } from '../context/authContext';
+
+const PERMISOS = {
+    VIEW: 29,
+    CREATE: 30,
+    EDIT: 31,
+    DELETE: 32
+};
 
 const Estantes = () => {
-    const { theme } = useContext(ThemeContext); // Acceder al tema actual
+    const { theme } = useContext(ThemeContext);
+    const { authData } = useContext(AuthContext);
     const [estantes, setEstantes] = useState([]);
     const [estante, setEstante] = useState(null);
-    const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
-    const [productDialog, setProductDialog] = useState(false);
+    const [deleteEstantesDialog, setDeleteEstantesDialog] = useState(false);
+    const [estanteDialog, setEstanteDialog] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
-    // Función para obtener la lista de tipos de estantes
     const fetchEstantes = async () => {
         try {
             const response = await axios.get("http://127.0.0.1:8000/api/estante");
@@ -30,63 +38,43 @@ const Estantes = () => {
         }
     };
 
-    // Cargar la lista de tipos de estantes al cargar el componente
     useEffect(() => {
         fetchEstantes();
     }, []);
 
     const [ubicaciones, setUbicaciones] = useState([]);
 
-// Función para obtener la lista de tipos de estantes
-const fetchUbicaciones = async () => {
-    try {
-        const response = await axios.get("http://127.0.0.1:8000/api/ubicacion");
-        setUbicaciones(response.data.data);
-    } catch (error) {
-        console.error("Error fetching tipo estantes:", error);
-    }
-};
-const [tipoUbicaciones, setTipoUbicaciones] = useState([]);
+    const fetchUbicaciones = async () => {
+        try {
+            const response = await axios.get("http://127.0.0.1:8000/api/ubicacion");
+            setUbicaciones(response.data.data);
+        } catch (error) {
+            console.error("Error fetching ubicaciones:", error);
+        }
+    };
 
-// Función para obtener la lista de tipos de ubicaciones
-const fetchTipoUbicaciones = async () => {
-    try {
-        const response = await axios.get("http://127.0.0.1:8000/api/tipo-ubicacion");
-        setTipoUbicaciones(response.data.data);
-    } catch (error) {
-        console.error("Error fetching tipo ubicaciones:", error);
-    }
-};
+    useEffect(() => {
+        fetchUbicaciones();
+    }, []);
 
-// Cargar la lista de tipos de estantes al cargar el componente
-useEffect(() => {
-    fetchUbicaciones();
-}, []);
-
-    // Manejar cambios en los inputs del formulario
     const onInputChange = (e, name) => {
         const val = e.target.value;
         let updatedEstante = { ...estante, [name]: val };
         setEstante(updatedEstante);
     };
 
-    // Abrir el diálogo para agregar/editar tipo de ubicación
     const openNew = () => {
-        setEstante({ id: null, ubicacion_id: '', cant_fila: ''});
-        setProductDialog(true);
+        setEstante({ id: null, ubicacion_id: '', cant_fila: '' });
+        setEstanteDialog(true);
     };
 
-    // Cerrar el diálogo de formulario
     const hideDialog = () => {
-        setProductDialog(false);
+        setEstanteDialog(false);
         setSubmitted(false);
     };
 
-    // Guardar un nuevo tipo de ubicación o actualizar uno existente
     const saveEstante = async () => {
         setSubmitted(true);
-    
-        // Verificar si tipo_id y direccion están definidos y no son vacíos
         if (estante.ubicacion_id && estante.cant_fila && estante.cant_fila.trim()) {
             try {
                 if (estante.id) {
@@ -94,102 +82,104 @@ useEffect(() => {
                 } else {
                     await axios.post(`http://127.0.0.1:8000/api/estante`, estante);
                 }
-                setProductDialog(false);
+                setEstanteDialog(false);
                 setEstante(null);
                 fetchEstantes();
             } catch (error) {
-                console.log("Error saving tipo estante:", error);
+                console.log("Error saving estante:", error);
             }
-        } else {
-            console.log("Tipo de estante o direccion no válidos:", estante);
         }
     };
 
-    // Abrir el diálogo para editar un tipo de ubicación existente
     const editEstante = (estante) => {
         setEstante(estante);
-        setProductDialog(true);
+        setEstanteDialog(true);
     };
 
-    // Abrir el diálogo para confirmar la eliminación de un tipo de ubicación
     const confirmDeleteEstante = (estante) => {
         setEstante(estante);
-        setDeleteProductsDialog(true);
+        setDeleteEstantesDialog(true);
     };
 
-    // Eliminar un tipo de ubicación
     const deleteEstante = async () => {
         try {
             await axios.delete(`http://127.0.0.1:8000/api/estante/${estante.id}`);
             fetchEstantes();
-            setDeleteProductsDialog(false);
+            setDeleteEstantesDialog(false);
             setEstante(null);
         } catch (error) {
             console.log("Error deleting estante:", error);
         }
     };
 
-    // Renderizar el pie de página del diálogo de confirmación de eliminación
-    const deleteProductsDialogFooter = (
+    const deleteEstantesDialogFooter = (
         <React.Fragment>
-            <Button label="Cancelar" icon="pi pi-times" className="p-button-outlined p-button-secondary" onClick={() => setDeleteProductsDialog(false)} />
+            <Button label="Cancelar" icon="pi pi-times" className="p-button-outlined p-button-secondary" onClick={() => setDeleteEstantesDialog(false)} />
             <Button label="Eliminar" icon="pi pi-check" className="p-button-danger" onClick={deleteEstante} />
         </React.Fragment>
     );
 
-    // Renderizar el componente
     return (
         <Container>
             <div className="card shadow p-4">
                 <h1 className="text-primary mb-4">Listado de Estantes</h1>
-                <Button label="Nuevo Estante" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
+                {authData.permisos.includes(PERMISOS.VIEW) && (
+                    <>
+                        {authData.permisos.includes(PERMISOS.CREATE) && (
+                            <Button label="Nuevo Estante" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
+                        )}
 
-                <DataTable value={estantes} className="p-datatable-sm">
-                    <Column field="ubicacion.direccion" header="Direccion"></Column>
-                    <Column field="cant_fila" header="Cantidad Filas"></Column>
-                    <Column body={(rowData) => (
-                        <div className="p-d-flex p-jc-center">
-                            <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editEstante(rowData)} />
-                            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteEstante(rowData)} />
-                        </div>
-                    )} style={{ textAlign: 'center', width: '8em' }} />
-                </DataTable>
+                        <DataTable value={estantes} className="p-datatable-sm">
+                            <Column field="ubicacion.direccion" header="Direccion"></Column>
+                            <Column field="cant_fila" header="Cantidad Filas"></Column>
+                            <Column body={(rowData) => (
+                                <div className="p-d-flex p-jc-center">
+                                    {authData.permisos.includes(PERMISOS.EDIT) && (
+                                        <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editEstante(rowData)} />
+                                    )}
+                                    {authData.permisos.includes(PERMISOS.DELETE) && (
+                                        <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteEstante(rowData)} />
+                                    )}
+                                </div>
+                            )} style={{ textAlign: 'center', width: '8em' }} />
+                        </DataTable>
+                    </>
+                )}
 
-                <Dialog visible={productDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`${estante ? 'Editar' : 'Nuevo'} Estante`} modal className="p-fluid" onHide={hideDialog}>
+                <Dialog visible={estanteDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`${estante ? 'Editar' : 'Nuevo'} Estante`} modal className="p-fluid" onHide={hideDialog}>
+                    <div className="p-field">
+                        <label htmlFor="ubicacion" className="font-weight-bold">Ubicación</label>
+                        <Dropdown
+                            id="ubicacion"
+                            value={estante?.ubicacion_id || null}
+                            options={ubicaciones.map(ubicacion => ({ label: ubicacion.direccion, value: ubicacion.id }))}
+                            onChange={(e) => onInputChange(e, 'ubicacion_id')}
+                            optionLabel="label"
+                            placeholder="Seleccione una ubicación"
+                            className="form-control"
+                            style={{ width: '100%' }}
+                            theme={theme}
+                        />
+                        {submitted && !estante?.ubicacion_id && <small className="p-error">La ubicación es requerida.</small>}
+                    </div>
                     
                     <div className="p-field">
-                    <label htmlFor="ubicacion" className="font-weight-bold">Ubicación</label>
-                    <Dropdown
-                        id="ubicacion"
-                        value={estante?.ubicacion_id || null}
-                        options={ubicaciones.map(ubicacion => ({ label: ubicacion.direccion, value: ubicacion.id }))}
-                        onChange={(e) => onInputChange(e, 'ubicacion_id')}
-                        optionLabel="label"
-                        placeholder="Seleccione una ubicación"
-                        className="form-control"
-                        style={{ width: '100%' }}
-                        theme={theme} // Aplicar el tema aquí
-                    />
-                    {submitted && !estante?.ubicacion_id && <small className="p-error">El tipo de ubicación es requerido.</small>}
-                </div>
+                        <label htmlFor="cant_fila" className="font-weight-bold">Cantidad Filas</label>
+                        <InputText id="cant_fila" value={estante?.cant_fila || ''} onChange={(e) => onInputChange(e, 'cant_fila')} required autoFocus className="form-control" />
+                        {submitted && !estante?.cant_fila && <small className="p-error">La cantidad de filas es requerida.</small>}
+                    </div>
                     
-                <div className="p-field">
-                    <label htmlFor="cant_fila" className="font-weight-bold">Cantidad Filas</label>
-                    <InputText id="cant_fila" value={estante?.cant_fila || ''} onChange={(e) => onInputChange(e, 'cant_fila')} required autoFocus className="form-control" />
-                    {submitted && !estante?.cant_fila && <small className="p-error">La direccion es requerida.</small>}
-                </div>
-                    
-                <div className="p-d-flex p-jc-end mt-4">
-                    <Button label="Cancelar" icon="pi pi-times" className="p-button-text p-button-outlined p-button-secondary" onClick={hideDialog} />
-                    <Button label="Guardar" icon="pi pi-check" className="p-button p-button-primary p-button-outlined p-ml-2" onClick={saveEstante} />
-                </div>
+                    <div className="p-d-flex p-jc-end mt-4">
+                        <Button label="Cancelar" icon="pi pi-times" className="p-button-text p-button-outlined p-button-secondary" onClick={hideDialog} />
+                        <Button label="Guardar" icon="pi pi-check" className="p-button p-button-primary p-button-outlined p-ml-2" onClick={saveEstante} />
+                    </div>
                 </Dialog>
 
-                <Dialog visible={deleteProductsDialog} style={{ width: '30rem' }} header="Confirmación" modal footer={deleteProductsDialogFooter} onHide={() => setDeleteProductsDialog(false)}>
+                <Dialog visible={deleteEstantesDialog} style={{ width: '30rem' }} header="Confirmación" modal footer={deleteEstantesDialogFooter} onHide={() => setDeleteEstantesDialog(false)}>
                     <div className="p-d-flex p-ai-center p-p-3">
                         <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem', color: 'var(--danger-color)' }} />
                         {estante && (
-                            <span>¿Seguro que quieres eliminar el tipo de ubicación <b>{estante.nombre}</b>?</span>
+                            <span>¿Seguro que quieres eliminar el estante <b>{estante.nombre}</b>?</span>
                         )}
                     </div>
                 </Dialog>
@@ -199,8 +189,8 @@ useEffect(() => {
 };
 
 const Container = styled.div`
-    background: ${({ theme }) => theme.bg}; /* Aplicar color de fondo del tema */
-    color: ${({ theme }) => theme.text}; /* Aplicar color de texto del tema */
+    background: ${({ theme }) => theme.bg};
+    color: ${({ theme }) => theme.text};
     padding: 20px;
     overflow-y: auto;
 `;
