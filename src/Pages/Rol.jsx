@@ -10,12 +10,11 @@ import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeflex/primeflex.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import styled from 'styled-components';
-import { MdLogout } from "react-icons/md";
 import { AuthContext } from '../context/authContext';
 
 const PERMISOS = {
-    VIEW: 1,
     CREATE: 2,
     EDIT: 3,
     DELETE: 4
@@ -31,10 +30,16 @@ const Roles = () => {
     const [verDialog, setVerDialog] = useState(false);
     const [permisos, setPermisos] = useState([]);
 
+    useEffect(() => {
+        fetchRoles();
+        fetchPermisos();
+    }, []);
+
     const fetchRoles = async () => {
         try {
             const response = await axios.get("http://127.0.0.1:8000/api/rol");
             setRoles(response.data.data);
+            console.log('Roles fetched:', response.data.data); // Agrega esta línea para verificar
         } catch (error) {
             console.error("Error fetching roles:", error);
         }
@@ -44,15 +49,11 @@ const Roles = () => {
         try {
             const response = await axios.get("http://127.0.0.1:8000/api/permiso");
             setPermisos(response.data.data);
+            console.log('Permisos fetched:', response.data.data); // Agrega esta línea para verificar
         } catch (error) {
             console.error("Error fetching permisos:", error);
         }
     };
-
-    useEffect(() => {
-        fetchRoles();
-        fetchPermisos();
-    }, []);
 
     const onInputChange = (e, name) => {
         const val = e.target.value;
@@ -88,7 +89,7 @@ const Roles = () => {
                 }
                 setProductDialog(false);
                 setRol(null);
-                fetchRoles();
+                fetchRoles(); // Actualiza la lista después de guardar
             } catch (error) {
                 console.log("Error saving rol:", error);
             }
@@ -108,7 +109,7 @@ const Roles = () => {
     const deleteRol = async () => {
         try {
             await axios.delete(`http://127.0.0.1:8000/api/rol/${rol.id}`);
-            fetchRoles();
+            fetchRoles(); // Actualiza la lista después de eliminar
             setDeleteProductsDialog(false);
             setRol(null);
         } catch (error) {
@@ -142,20 +143,18 @@ const Roles = () => {
                     <Column field="responsabilidad" header="Responsabilidad"></Column>
                     <Column body={(rowData) => (
                         <div className="p-d-flex p-jc-center">
-                            {authData.permisos.includes(PERMISOS.VIEW) && (
-                                <Button className="p-button-rounded p-button-outlined p-button-success p-button-sm p-mr-2" onClick={() => verPermisos(rowData)} label="Permisos" />
-                            )}
+                            <Button className="p-button-rounded p-button-outlined p-button-success p-button-sm p-m-2" onClick={() => verPermisos(rowData)} label="Permisos" />
                             {authData.permisos.includes(PERMISOS.EDIT) && (
-                                <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editRol(rowData)} />
+                                <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-m-2" onClick={() => editRol(rowData)} />
                             )}
                             {authData.permisos.includes(PERMISOS.DELETE) && (
                                 <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteRol(rowData)} />
                             )}
                         </div>
-                    )} style={{ textAlign: 'center', width: '8em' }} />
+                    )} style={{ textAlign: 'center', width: '12em' }} />
                 </DataTable>
 
-                <Dialog visible={productDialog} style={{ width: '40rem', overflowY: 'auto', paddingBottom: '0' }} header={`${rol ? 'Editar' : 'Nuevo'} Rol`} modal className="p-fluid" onHide={hideDialog}>
+                <Dialog visible={productDialog} style={{ width: '40rem', overflowY: 'auto', paddingBottom: '0' }} header={`${rol && rol.id ? 'Editar' : 'Nuevo'} Rol`} modal className="p-fluid" onHide={hideDialog}>
                     <div className="p-field">
                         <label htmlFor="nombre" className="font-weight-bold">Nombre</label>
                         <InputText id="nombre" value={rol?.nombre || ''} onChange={(e) => onInputChange(e, 'nombre')} required autoFocus className="form-control" />
@@ -178,7 +177,7 @@ const Roles = () => {
                             value={rol?.permisos.map(p => p.id) || []}
                             options={permisos.map(p => ({ label: p.nombre, value: p.id }))}
                             onChange={onPermisoChange}
-                            optionLabel="nombre"
+                            optionLabel="label"
                             placeholder="Seleccione permisos"
                             className="form-control"
                             display="chip"
@@ -187,46 +186,27 @@ const Roles = () => {
                             <small className="p-error">Debe seleccionar al menos un permiso.</small>
                         )}
                     </div>
-
-                    <div className="p-d-flex p-jc-end mt-4">
-                        <Button label="Cancelar" icon="pi pi-times" className="p-button-text p-button-outlined p-button-secondary" onClick={hideDialog} />
-                        <Button label="Guardar" icon="pi pi-check" className="p-button p-button-primary p-button-outlined p-ml-2" onClick={saveRol} />
+                    <div className="p-d-flex p-jc-end mt-5">
+                        <Button label="Cancelar" icon="pi pi-times" className="p-button-danger p-ml-2" onClick={hideDialog} />
+                        <Button label="Guardar" icon="pi pi-check" className="p-button-success p-ml-2" onClick={saveRol} />
+                    </div>
+                </Dialog>
+                <Dialog visible={deleteProductsDialog} style={{ width: '450px' }} header="Confirmar" modal footer={deleteProductsDialogFooter} onHide={() => setDeleteProductsDialog(false)}>
+                    <div className="confirmation-content">
+                        <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem' }} />
+                        {rol && <span>¿Está seguro de que desea eliminar el rol <b>{rol.nombre}</b>?</span>}
                     </div>
                 </Dialog>
 
-                <Dialog visible={deleteProductsDialog} style={{ width: '30rem' }} header="Confirmación" modal footer={deleteProductsDialogFooter} onHide={() => setDeleteProductsDialog(false)}>
-                        <div className="p-d-flex p-ai-center p-p-3">
-                            <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem', color: 'var(--danger-color)' }} />
-                            {rol && (
-                                <span>¿Seguro que quieres eliminar el rol <b>{rol.nombre}</b>?</span>
-                            )}
-                        </div>
-                    </Dialog>
-
-                    <Dialog visible={verDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`Permisos de Rol - ${rol?.nombre}`} modal className="p-fluid" onHide={() => setVerDialog(false)} closable={true}>
-                        <div className="p-field">
-                            <label className="font-weight-bold">Permisos</label>
-                            <DataTable value={rol?.permisos} className="p-datatable-sm">
-                                <Column field="nombre" header="Nombre"></Column>
-                            </DataTable>
-                        </div>
-                    </Dialog>
-                </div>
+                <Dialog visible={verDialog} style={{ width: '450px' }} header="Permisos del Rol" modal onHide={() => setVerDialog(false)}>
+                    <div className="confirmation-content">
+                        {rol && rol.permisos.map(p => <p key={p.id}>{p.nombre}</p>)}
+                    </div>
+                </Dialog>
             </div>
+        </div>
     );
 };
 
-const Container = styled.div`
-    color: ${(props) => props.theme.text};
-    background: ${(props) => props.theme.bg};
-    position: sticky;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: ${({ isopen }) => (isopen ? "250px" : "60px")};
-    transition: width 0.3s;
-    padding-top: 20px;
-    z-index: 10;
-`;
-
 export default Roles;
+

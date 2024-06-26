@@ -30,7 +30,7 @@ const Login = ({ setAuthenticated }) => {
       if (success) {
         saveAuthData(data);
         setAuthenticated(true);
-        navigate('/roles');
+        navigate('/perfil');
       } else {
         setError(message);
       }

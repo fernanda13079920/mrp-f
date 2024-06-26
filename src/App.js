@@ -16,7 +16,8 @@ import Procesos from './Pages/Proceso';
 import Estantes from './Pages/Estante';
 import UbicacionArticulos from './Pages/UbicacionArticulo';
 import Proveedores from './Pages/Proveedor';
-
+import Perfil from './Pages/Perfil';
+import OrdenProduccion from "./Pages/OrdenProduccion";
 import axios from 'axios';
 
 export const ThemeContext = createContext(null);
@@ -77,6 +78,7 @@ function App() {
                 <MainContent>
                   <Routes>
                     <Route path="/" element={<Login />} />
+                    <Route path="/perfil" element={<Perfil />} />
                     <Route path="/rol" element={<Roles />} />
                     <Route path="/usuario" element={<Usuarios />} />
                     <Route path="/tipo-ubicacion" element={<TipoUbicaciones />} />
@@ -87,6 +89,7 @@ function App() {
                     <Route path="/estante" element={<Estantes />} />
                     <Route path="/ubicacion-articulo" element={<UbicacionArticulos />} />
                     <Route path="/proveedores" element={<Proveedores />} />
+                    <Route path="/orden-produccion" element={<OrdenProduccion />} />
                   </Routes>
                 </MainContent>
               </Container>

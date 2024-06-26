@@ -9,7 +9,7 @@ import {
   AiOutlineApartment,
   AiOutlineSetting,
 } from "react-icons/ai";
-import { MdOutlineAnalytics, MdLogout } from "react-icons/md";
+import { MdOutlineAnalytics, MdLogout, MdPerson } from "react-icons/md";
 import { ThemeContext } from "../App";
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
@@ -28,19 +28,20 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
   };
 
   const { setTheme, theme } = useContext(ThemeContext);
+
   const CambiarTheme = () => {
     setTheme((theme) => (theme === "light" ? "dark" : "light"));
   };
 
   return (
-    <Container isopen={sidebarOpen} themeuse={theme}>
+    <Container isopen={sidebarOpen ? 1 : 0} themeuse={theme}>
       <button className="Sidebarbutton" onClick={ModSidebaropen}>
         <AiOutlineLeft />
       </button>
       <div className="Logocontent">
         <div className="imgcontent">
           <img src={logo} alt="Logo" style={{ width: '40px', height: '40px' }}/>
-          <h2>MRP</h2>
+          <h2 style={{ display: sidebarOpen ? 'block' : 'none' }}>MRP</h2>
         </div>
       </div>
       {linksArray.map(({ label, to, subMenu }, index) => (
@@ -186,6 +187,11 @@ const linksArray = [
 
 const secondarylinksArray = [
   {
+    label: "Perfil",
+    icon: <MdPerson />,
+    to: "/perfil",
+  },
+  {
     label: "Salir",
     icon: <MdLogout />,
     to: "/",
@@ -312,10 +318,10 @@ const Container = styled.div`
 
   .SubMenu {
     padding-left: ${({ isopen }) => (isopen ? "90px" : "0")};
-    .SubLinks {
+       .SubLinks {
       display: flex;
       align-items: center;
-      text-decoration:      none;
+      text-decoration: none;
       padding: calc(${v.smSpacing} - 2px) 0;
       color: ${(props) => props.theme.text};
       height: 40px;
@@ -412,8 +418,10 @@ function getIcon(label) {
       return <AiOutlineApartment />;
     case "Salir":
       return <MdLogout />;
-    default:
-      return null;
+      case "Perfil":
+        return <MdPerson />;
+      default:
+        return null;
   }
 }
 
