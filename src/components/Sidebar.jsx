@@ -11,9 +11,11 @@ import {
 } from "react-icons/ai";
 import { MdOutlineAnalytics, MdLogout, MdPerson } from "react-icons/md";
 import { ThemeContext } from "../App";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
   const [openIndexes, setOpenIndexes] = useState([]);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const ModSidebaropen = () => {
     setSidebarOpen(!sidebarOpen);
@@ -31,6 +33,42 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
 
   const CambiarTheme = () => {
     setTheme((theme) => (theme === "light" ? "dark" : "light"));
+  };
+
+  const handleLogoutClick = () => {
+    setLogoutDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setLogoutDialogOpen(false);
+  };
+
+  const confirmLogout = () => {
+    handleLogout();
+    setLogoutDialogOpen(false);
+  };
+
+  const getIcon = (label) => {
+    switch (label) {
+      case "Usuario":
+        return <MdPerson />;
+      case "Articulos":
+        return <AiOutlineApartment />;
+      case "Proceso":
+        return <AiOutlineSetting />;
+      case "Ubicacion":
+        return <AiOutlineHome />;
+      case "Produccion":
+        return <MdOutlineAnalytics />;
+      case "Compra":
+        return <MdOutlineAnalytics />;
+      case "Salir":
+        return <MdLogout />;
+      case "Perfil":
+        return <MdPerson />;
+      default:
+        return <AiOutlineHome />;
+    }
   };
 
   return (
@@ -76,10 +114,31 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, handleLogout }) => {
       {secondarylinksArray.map(({ label, to, icon }) => (
         <div className="LinkContainer" key={label}>
           {label === "Salir" ? (
-            <button className="Links logout" onClick={handleLogout}>
-              {sidebarOpen && <div className="Linkicon">{icon}</div>}
-              {sidebarOpen && <span>{label}</span>}
-            </button>
+            <>
+              <Button className="Links logout" onClick={handleLogoutClick}>
+                {sidebarOpen && <div className="Linkicon"><MdLogout /></div>}
+                {sidebarOpen && <span>Salir</span>}
+              </Button>
+              <Dialog
+                open={logoutDialogOpen}
+                onClose={handleCloseDialog}
+              >
+                <DialogTitle>Confirmación</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    ¿Estás seguro de que quieres cerrar sesión?
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleCloseDialog} color="primary">
+                    Cancelar
+                  </Button>
+                  <Button onClick={confirmLogout} color="primary">
+                    Cerrar sesión
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </>
           ) : (
             <NavLink
               to={to}
@@ -138,7 +197,16 @@ const linksArray = [
   },
   {
     label: "Proceso",
-    to: "/Proceso",
+    subMenu: [
+      {
+        label: "Procesos",
+        to: "/proceso",
+      },
+      {
+        label: "Lista de Procesos",
+        to: "/lista-proceso",
+      },
+    ],
   },
   {
     label: "Ubicacion",
@@ -167,19 +235,6 @@ const linksArray = [
       {
         label: "Orden de Produccion",
         to: "/orden-produccion",
-      },
-    ],
-  },
-  {
-    label: "Compra",
-    subMenu: [
-      {
-        label: "Proveedores",
-        to: "/proveedores",
-      },
-      {
-        label: "Orden de Compra",
-        to: "/orden-compra",
       },
     ],
   },
@@ -253,7 +308,7 @@ const Container = styled.div`
       }
       cursor: pointer;
       transition: all 0.3s;
-      transform: ${({ isopen }) => (isopen ? `scale(0.7)` : `scale(0.5)`)};
+      transform:       ${({ isopen }) => (isopen ? `scale(0.7)` : `scale(0.5)`)};
     }
     h2 {
       display: ${({ isopen }) => (isopen ? `block` : `none`)};
@@ -403,27 +458,6 @@ const Divider = styled.div`
   background: ${(props) => props.theme.bg3};
   margin: ${v.lgSpacing} 0;
 `;
-
-function getIcon(label) {
-  switch (label) {
-    case "Usuario":
-      return <AiOutlineHome />;
-    case "Articulos":
-      return <AiOutlineApartment />;
-    case "Proceso":
-      return <AiOutlineSetting />;
-    case "Produccion":
-      return <MdOutlineAnalytics />;
-    case "Compra":
-      return <AiOutlineApartment />;
-    case "Salir":
-      return <MdLogout />;
-      case "Perfil":
-        return <MdPerson />;
-      default:
-        return null;
-  }
-}
 
 export default Sidebar;
 

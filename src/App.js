@@ -13,6 +13,7 @@ import Ubicaciones from './Pages/Ubicacion';
 import Productos from './Pages/Producto';
 import MateriasPrimas from './Pages/MateriaPrima';
 import Procesos from './Pages/Proceso';
+import ListaProcesos from './Pages/ListaProceso';
 import Estantes from './Pages/Estante';
 import UbicacionArticulos from './Pages/UbicacionArticulo';
 import Proveedores from './Pages/Proveedor';
@@ -40,7 +41,7 @@ function App() {
         throw new Error('No auth data found');
       }
   
-      const response = await axios.post('http://127.0.0.1:8000/api/logout', {
+      const response = await axios.post('http://3.147.242.40/api/logout', {
         id: authData.id,
         rol_id: authData.rol_id,
         persona_id: authData.persona_id,
@@ -86,6 +87,7 @@ function App() {
                     <Route path="/producto" element={<Productos />} />
                     <Route path="/materia-prima" element={<MateriasPrimas />} />
                     <Route path="/proceso" element={<Procesos />} />
+                    <Route path="/lista-proceso" element={<ListaProcesos />} />
                     <Route path="/estante" element={<Estantes />} />
                     <Route path="/ubicacion-articulo" element={<UbicacionArticulos />} />
                     <Route path="/proveedores" element={<Proveedores />} />

@@ -12,7 +12,7 @@ const Profile = () => {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/usuario/${authData.id}`);
+        const response = await axios.get(`http://3.147.242.40/api/usuario/${authData.id}`);
         const { success, data, message } = response.data;
 
         if (success && data && data.length > 0) {
@@ -58,7 +58,6 @@ const Profile = () => {
             <p><strong>Celular:</strong> {userData.persona.celular}</p>
             <p><strong>Rol:</strong> {userData.rol.nombre}</p>
             <p><strong>Función:</strong> {userData.rol.funcion}</p>
-            <p><strong>Responsabilidad:</strong> {userData.rol.responsabilidad}</p>
           </div>
         </div>
       </div>

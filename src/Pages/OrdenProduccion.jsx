@@ -28,7 +28,7 @@ const Produccion = () => {
 
     const fetchProducciones = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/orden-produccion");
+            const response = await axios.get("http://3.147.242.40/api/orden-produccion");
             setProducciones(response.data.data);
         } catch (error) {
             console.error("Error fetching producciones:", error);
@@ -37,7 +37,7 @@ const Produccion = () => {
 
     const fetchUsuarios = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/usuario");
+            const response = await axios.get("http://3.147.242.40/api/usuario");
             setUsuarios(response.data.data);
         } catch (error) {
             console.error("Error fetching usuarios:", error);
@@ -49,7 +49,7 @@ const Produccion = () => {
     // Función para obtener productos filtrados por tipo
     const fetchProductos = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/articulo");
+            const response = await axios.get("http://3.147.242.40/api/articulo");
             const allProductos = response.data.data;
             const filteredProductos = allProductos.filter(producto => producto.tipo_id === tipoId);
             setProductos(filteredProductos);
@@ -158,7 +158,7 @@ const Produccion = () => {
                 });
     
                 // Enviar la solicitud
-                const response = await axios.post(`http://127.0.0.1:8000/api/orden-produccion`, formData, {
+                const response = await axios.post(`http://3.147.242.40/api/orden-produccion`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
@@ -187,7 +187,7 @@ const Produccion = () => {
 
     const deleteProduccion = async () => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/produccion/${produccion.id}`);
+            await axios.delete(`http://3.147.242.40/api/produccion/${produccion.id}`);
             fetchProducciones();
             setProduccion(null);
         } catch (error) {

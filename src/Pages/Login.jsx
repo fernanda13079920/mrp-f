@@ -22,7 +22,7 @@ const Login = ({ setAuthenticated }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/login', {
+      const response = await axios.post('http://3.147.242.40/api/login', {
         username,
         password,
       });

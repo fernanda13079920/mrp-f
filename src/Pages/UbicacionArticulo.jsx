@@ -21,7 +21,7 @@ const UbicacionArticulos = () => {
     // Función para obtener la lista de ubicación artículos
     const fetchUbicacionArticulos = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/ubicacion-articulo");
+            const response = await axios.get("http://3.147.242.40/api/ubicacion-articulo");
             setUbicacionArticulos(response.data.data);
         } catch (error) {
             console.error("Error fetching ubicacion articulos:", error);
@@ -35,7 +35,7 @@ const UbicacionArticulos = () => {
     // Función para obtener la lista de tipos de estantes
     const fetchEstantes = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/estante");
+            const response = await axios.get("http://3.147.242.40/api/estante");
             setEstantes(response.data.data);
         } catch (error) {
             console.error("Error fetching estantes:", error);
@@ -50,7 +50,7 @@ const UbicacionArticulos = () => {
     // Función para obtener la lista de tipos de estantes
     const fetchArticulos = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/articulo");
+            const response = await axios.get("http://3.147.242.40/api/articulo");
             setArticulos(response.data.data);
         } catch (error) {
             console.error("Error fetching estantes:", error);
@@ -93,9 +93,9 @@ const UbicacionArticulos = () => {
             try {
                 let response;
                 if (ubicacionArticulo.id) {
-                    response = await axios.put(`http://127.0.0.1:8000/api/ubicacion-articulo/${ubicacionArticulo.id}`, ubicacionArticulo);
+                    response = await axios.put(`http://3.147.242.40/api/ubicacion-articulo/${ubicacionArticulo.id}`, ubicacionArticulo);
                 } else {
-                    response = await axios.post(`http://127.0.0.1:8000/api/ubicacion-articulo`, ubicacionArticulo);
+                    response = await axios.post(`http://3.147.242.40/api/ubicacion-articulo`, ubicacionArticulo);
                 }
                 if (response.status === 200 || response.status === 201) {
                     setProductDialog(false);
@@ -121,7 +121,7 @@ const UbicacionArticulos = () => {
     // Eliminar un ubicación artículo
     const deleteUbicacionArticulo = async () => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/ubicacion-articulo/${ubicacionArticulo.id}`);
+            await axios.delete(`http://3.147.242.40/api/ubicacion-articulo/${ubicacionArticulo.id}`);
             fetchUbicacionArticulos();
             setDeleteProductsDialog(false);
             setUbicacionArticulo(null);
@@ -165,13 +165,13 @@ const UbicacionArticulos = () => {
                             id="tipo-ubicacion"
                             value={ubicacionArticulo?.estante_id || null}
                             options={estantes.map(estante => ({
-                                label: `Estante ID: ${estante.id}, Dirección: ${estante.ubicacion.direccion}, Filas: ${estante.cant_fila}`,
+                                label: ` Dirección: ${estante.ubicacion.direccion}, Filas: ${estante.cant_fila}`,
                                 value: estante.id
                             }))}
                             onChange={(e) => onInputChange(e, 'estante_id')}
                             optionLabel="label"
-                            placeholder="Seleccione un estante"
-                            className="form-control"
+                            placeholder="Seleccione un tipo"
+                            className="p-inputtext"
                         />
                         {submitted && !ubicacionArticulo?.estante_id && <small className="p-error">El tipo de ubicación es requerido.</small>}
                     </div>
@@ -183,8 +183,8 @@ const UbicacionArticulos = () => {
                             options={articulos.map(articulo => ({ label: articulo.nombre, value: articulo.id }))}
                             onChange={(e) => onInputChange(e, 'articulo_id')}
                             optionLabel="label"
-                            placeholder="Seleccione un tipo de ubicación"
-                            className="form-control"
+                            placeholder="Seleccione un tipo"
+                            className="p-inputtext"
                         />
                         {submitted && !ubicacionArticulo?.articulo_id && <small className="p-error">El tipo de ubicación es requerido.</small>}
                     </div>

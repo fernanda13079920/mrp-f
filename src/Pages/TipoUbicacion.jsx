@@ -20,7 +20,7 @@ const TipoUbicaciones = () => {
     // Función para obtener la lista de tipos de ubicaciones
     const fetchTipoUbicaciones = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/tipo-ubicacion");
+            const response = await axios.get("http://3.147.242.40/api/tipo-ubicacion");
             setTipoUbicaciones(response.data.data);
         } catch (error) {
             console.error("Error fetching tipo ubicaciones:", error);
@@ -58,9 +58,9 @@ const TipoUbicaciones = () => {
         if ( tipoUbicacion.nombre && tipoUbicacion.nombre.trim()) {
             try {
                 if (tipoUbicacion.id) {
-                    await axios.put(`http://127.0.0.1:8000/api/tipo-ubicacion/${tipoUbicacion.id}`, tipoUbicacion);
+                    await axios.put(`http://3.147.242.40/api/tipo-ubicacion/${tipoUbicacion.id}`, tipoUbicacion);
                 } else {
-                    await axios.post(`http://127.0.0.1:8000/api/tipo-ubicacion`, tipoUbicacion);
+                    await axios.post(`http://3.147.242.40/api/tipo-ubicacion`, tipoUbicacion);
                 }
                 setProductDialog(false);
                 setTipoUbicacion(null);
@@ -86,7 +86,7 @@ const TipoUbicaciones = () => {
     // Eliminar un tipo de ubicación
     const deleteTipoUbicacion = async () => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/tipo-ubicacion/${tipoUbicacion.id}`);
+            await axios.delete(`http://3.147.242.40/api/tipo-ubicacion/${tipoUbicacion.id}`);
             fetchTipoUbicaciones();
             setDeleteProductsDialog(false);
             setTipoUbicacion(null);

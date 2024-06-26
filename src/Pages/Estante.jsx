@@ -31,7 +31,7 @@ const Estantes = () => {
 
     const fetchEstantes = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/estante");
+            const response = await axios.get("http://3.147.242.40/api/estante");
             setEstantes(response.data.data);
         } catch (error) {
             console.error("Error fetching estantes:", error);
@@ -46,7 +46,7 @@ const Estantes = () => {
 
     const fetchUbicaciones = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/ubicacion");
+            const response = await axios.get("http://3.147.242.40/api/ubicacion");
             setUbicaciones(response.data.data);
         } catch (error) {
             console.error("Error fetching ubicaciones:", error);
@@ -78,9 +78,9 @@ const Estantes = () => {
         if (estante.ubicacion_id && estante.cant_fila && estante.cant_fila.trim()) {
             try {
                 if (estante.id) {
-                    await axios.put(`http://127.0.0.1:8000/api/estante/${estante.id}`, estante);
+                    await axios.put(`http://3.147.242.40/api/estante/${estante.id}`, estante);
                 } else {
-                    await axios.post(`http://127.0.0.1:8000/api/estante`, estante);
+                    await axios.post(`http://3.147.242.40/api/estante`, estante);
                 }
                 setEstanteDialog(false);
                 setEstante(null);
@@ -103,7 +103,7 @@ const Estantes = () => {
 
     const deleteEstante = async () => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/estante/${estante.id}`);
+            await axios.delete(`http://3.147.242.40/api/estante/${estante.id}`);
             fetchEstantes();
             setDeleteEstantesDialog(false);
             setEstante(null);
@@ -155,8 +155,8 @@ const Estantes = () => {
                             options={ubicaciones.map(ubicacion => ({ label: ubicacion.direccion, value: ubicacion.id }))}
                             onChange={(e) => onInputChange(e, 'ubicacion_id')}
                             optionLabel="label"
-                            placeholder="Seleccione una ubicación"
-                            className="form-control"
+                            placeholder="Seleccione un tipo"
+                            className="p-inputtext"
                             style={{ width: '100%' }}
                             theme={theme}
                         />

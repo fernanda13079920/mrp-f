@@ -26,7 +26,7 @@ const Productos = () => {
     // Función para obtener productos filtrados por tipo
     const fetchProductos = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/articulo");
+            const response = await axios.get("http://3.147.242.40/api/articulo");
             const allProductos = response.data.data;
             const filteredProductos = allProductos.filter(producto => producto.tipo_id === tipoId);
             setProductos(filteredProductos);
@@ -44,7 +44,7 @@ const Productos = () => {
 
     const fetchMateriasPrimas = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/articulo");
+            const response = await axios.get("http://3.147.242.40/api/articulo");
             const allMateriasPrimas = response.data.data;
             const filteredMateriasPrimas = allMateriasPrimas.filter(producto => producto.tipo_id === materia);
             setMateriasPrimas(filteredMateriasPrimas);
@@ -62,7 +62,7 @@ const Productos = () => {
 
     const fetchTipoArticulos = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/tipo-articulo");
+            const response = await axios.get("http://3.147.242.40/api/tipo-articulo");
             setTipoArticulos(response.data.data);
         } catch (error) {
             console.error("Error al obtener tipos de artículos:", error);
@@ -85,23 +85,26 @@ const Productos = () => {
         const selectedMaterials = e.value;
         const updatedMaterials = selectedMaterials.map(materialId => {
             const existingMaterial = producto?.materiales.find(material => material.id === materialId);
-            return existingMaterial || { id: materialId, cantidad: 1 };
+            return existingMaterial || { id: materialId, cantidad: 1, pivot: { cantidad: 1 } };
         });
         setProducto({ ...producto, materiales: updatedMaterials });
     };
 
     // Función para manejar cambios en la cantidad de materiales
     const onMaterialQuantityChange = (e, materialId) => {
-        const cantidad = e.target.value;
+        const cantidad = parseInt(e.target.value, 10);
         const updatedMaterials = producto.materiales.map(material =>
-            material.id === materialId ? { ...material, cantidad: cantidad } : material
+            material.id === materialId ? { ...material, pivot: { ...material.pivot, cantidad: cantidad } } : material
         );
-        setProducto({ ...producto, materiales: updatedMaterials });
+        setProducto(prevProducto => ({
+            ...prevProducto,
+            materiales: updatedMaterials
+        }));
     };
 
     // Función para abrir el formulario de nuevo producto
     const openNew = () => {
-        setProducto({ id: null, tipo_id: '', nombre: '', descripcion: '', fecha_creacion: '', fecha_vencimiento: '', serie: '', materiales: [] });
+        setProducto({ id: null, tipo_id: '', nombre: '', descripcion: '', fecha_creacion: null, fecha_vencimiento: null, serie: '', materiales: [] });
         setProductDialog(true);
     };
 
@@ -118,9 +121,9 @@ const Productos = () => {
         if (producto.tipo_id && producto.nombre && producto.descripcion && producto.fecha_creacion && producto.fecha_vencimiento && producto.materiales.length && producto.serie.trim()) {
             try {
                 if (producto.id) {
-                    await axios.put(`http://127.0.0.1:8000/api/articulo/${producto.id}`, producto);
+                    await axios.put(`http://3.147.242.40/api/articulo/${producto.id}`, producto);
                 } else {
-                    await axios.post(`http://127.0.0.1:8000/api/articulo`, producto);
+                    await axios.post(`http://3.147.242.40/api/articulo`, producto);
                 }
                 setProductDialog(false);
                 setProducto(null);
@@ -135,7 +138,17 @@ const Productos = () => {
 
     // Función para editar un producto
     const editProducto = (producto) => {
-        setProducto(producto);
+        // Convertir las fechas de string a objetos Date si existen
+        const fechaCreacion = producto.fecha_creacion ? new Date(producto.fecha_creacion) : null;
+        const fechaVencimiento = producto.fecha_vencimiento ? new Date(producto.fecha_vencimiento) : null;
+
+        // Actualizar el estado del producto con las fechas convertidas
+        setProducto({
+            ...producto,
+            fecha_creacion: fechaCreacion,
+            fecha_vencimiento: fechaVencimiento,
+        });
+
         setProductDialog(true);
     };
 
@@ -148,7 +161,7 @@ const Productos = () => {
     // Función para eliminar un producto
     const deleteProducto = async () => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/articulo/${producto.id}`);
+            await axios.delete(`http://3.147.242.40/api/articulo/${producto.id}`);
             fetchProductos();
             setDeleteProductsDialog(false);
             setProducto(null);
@@ -197,15 +210,14 @@ const Productos = () => {
                 {/* Dialog para editar o crear un producto */}
                 <Dialog visible={productDialog} style={{ width: '40rem', overflowY: 'auto', paddingBottom: '0' }} header={`${producto ? 'Editar' : 'Nuevo'} Producto`} modal className="p-fluid" onHide={hideDialog}>
                     <div className="p-field">
-                        <label htmlFor="tipo-articulo" className="font-weight-bold">Tipo</label>
-                        <Dropdown
+                        <label htmlFor="tipo-articulo" className="font-weight-bold">Tipo</label>                        <Dropdown
                             id="tipo-articulo"
                             value={producto?.tipo_id || null}
                             options={tipoArticulos.map(tipo => ({ label: tipo.nombre, value: tipo.id }))}
                             onChange={(e) => onInputChange(e, 'tipo_id')}
                             optionLabel="label"
                             placeholder="Seleccione un tipo"
-                            className="form-control"
+                            className="p-inputtext"
                         />
                         {submitted && !producto?.tipo_id && <small className="p-error">El tipo es requerido.</small>}
                     </div>
@@ -215,7 +227,7 @@ const Productos = () => {
                         <InputText id="nombre" value={producto?.nombre || ''} onChange={(e) => onInputChange(e, 'nombre')} required autoFocus className="form-control" />
                         {submitted && !producto?.nombre && <small className="p-error">El nombre es requerido.</small>}
                     </div>
-                    
+
                     <div className="p-field">
                         <label htmlFor="descripcion" className="font-weight-bold">Descripción</label>
                         <InputText id="descripcion" value={producto?.descripcion || ''} onChange={(e) => onInputChange(e, 'descripcion')} required autoFocus className="form-control" />
@@ -224,22 +236,26 @@ const Productos = () => {
 
                     <div className="p-field">
                         <label htmlFor="fecha_creacion" className="font-weight-bold">Fecha Creación</label>
-                        <Calendar id="fecha_creacion" value={producto?.fecha_creacion || null} onChange={(e) => onInputChange(e, 'fecha_creacion')} required showIcon className="form-control" />
+                        <div className="p-inputgroup">
+                            <Calendar id="fecha_creacion" value={producto?.fecha_creacion || null} onChange={(e) => onInputChange(e, 'fecha_creacion')} required showIcon className="p-inputtext" dateFormat="dd/mm/yy" />
+                        </div>
                         {submitted && !producto?.fecha_creacion && <small className="p-error">La fecha de creación es requerida.</small>}
                     </div>
-                    
+
                     <div className="p-field">
                         <label htmlFor="fecha_vencimiento" className="font-weight-bold">Fecha Vencimiento</label>
-                        <Calendar id="fecha_vencimiento" value={producto?.fecha_vencimiento || null} onChange={(e) => onInputChange(e, 'fecha_vencimiento')} required showIcon className="form-control" />
+                        <div className="p-inputgroup">
+                            <Calendar id="fecha_vencimiento" value={producto?.fecha_vencimiento || null} onChange={(e) => onInputChange(e, 'fecha_vencimiento')} required showIcon className="p-inputtext" dateFormat="dd/mm/yy" />
+                        </div>
                         {submitted && !producto?.fecha_vencimiento && <small className="p-error">La fecha de vencimiento es requerida.</small>}
                     </div>
-                    
+
                     <div className="p-field">
                         <label htmlFor="serie" className="font-weight-bold">Serie</label>
                         <InputText id="serie" value={producto?.serie || ''} onChange={(e) => onInputChange(e, 'serie')} required autoFocus className="form-control" />
                         {submitted && !producto?.serie && <small className="p-error">La serie es requerida.</small>}
                     </div>
-                    
+
                     <div className="p-field">
                         <label htmlFor="materiasPrimas" className="font-weight-bold">Materias Primas</label>
                         <MultiSelect
@@ -260,8 +276,9 @@ const Productos = () => {
                     {/* Renderizar la cantidad de cada material */}
                     {producto?.materiales.map(material => (
                         <div className="p-field" key={material.id}>
-                            <label htmlFor={`cantidad-${material.id}`} className="font-weight-bold">{materiasPrimas.find(mp => mp.id === material.id)?.nombre} - Cantidad</label>
-                            <InputText id={`cantidad-${material.id}`} value={material.cantidad} onChange={(e) => onMaterialQuantityChange(e, material.id)} type="number" min="1" className="form-control" />
+                            <label htmlFor={`pivot.cantidad-${material.id}`} className="font-weight-bold">{materiasPrimas.find(mp => mp.id === material.id)?.nombre} - Cantidad</label>
+                            <InputText id={`pivot.cantidad-${material.id}`} value={material.pivot.cantidad} onChange={(e) => onMaterialQuantityChange(e, material.id)} type="number" min="1" className="form-control" />
+
                         </div>
                     ))}
 
@@ -288,7 +305,7 @@ const Productos = () => {
                         <label className="font-weight-bold">Materiales</label>
                         <DataTable value={producto?.materiales} className="p-datatable-sm">
                             <Column field="nombre" header="Nombre"></Column>
-                            <Column field="cantidad" header="Cantidad"></Column>
+                            <Column field="pivot.cantidad" header="Cantidad"></Column>
                         </DataTable>
                     </div>
                 </Dialog>

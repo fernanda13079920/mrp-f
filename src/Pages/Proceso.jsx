@@ -20,7 +20,7 @@ const Procesos = () => {
     // Función para obtener la lista de tipos de ubicaciones
     const fetchProcesos = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/proceso");
+            const response = await axios.get("http://3.147.242.40/api/proceso");
             setProcesos(response.data.data);
         } catch (error) {
             console.error("Error fetching tipo ubicaciones:", error);
@@ -58,9 +58,9 @@ const Procesos = () => {
         if ( proceso.nombre && proceso.descripcion && proceso.descripcion.trim()) {
             try {
                 if (proceso.id) {
-                    await axios.put(`http://127.0.0.1:8000/api/proceso/${proceso.id}`, proceso);
+                    await axios.put(`http://3.147.242.40/api/proceso/${proceso.id}`, proceso);
                 } else {
-                    await axios.post(`http://127.0.0.1:8000/api/proceso`, proceso);
+                    await axios.post(`http://3.147.242.40/api/proceso`, proceso);
                 }
                 setProductDialog(false);
                 setProceso(null);
@@ -86,7 +86,7 @@ const Procesos = () => {
     // Eliminar un tipo de ubicación
     const deleteProceso = async () => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/proceso/${proceso.id}`);
+            await axios.delete(`http://3.147.242.40/api/proceso/${proceso.id}`);
             fetchProcesos();
             setDeleteProductsDialog(false);
             setProceso(null);
@@ -94,6 +94,7 @@ const Procesos = () => {
             console.log("Error deleting tipo ubicacion:", error);
         }
     };
+    
 
     // Renderizar el pie de página del diálogo de confirmación de eliminación
     const deleteProductsDialogFooter = (
@@ -107,8 +108,8 @@ const Procesos = () => {
     return (
         <div className="container mt-4">
             <div className="card shadow p-4">
-                <h1 className="text-primary mb-4">Listado de Tipos de Ubicación</h1>
-                <Button label="Nuevo Tipo de Ubicación" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
+                <h1 className="text-primary mb-4">Listado de Procesos</h1>
+                <Button label="Nuevo Proceso" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
 
                 <DataTable value={procesos} className="p-datatable-sm">
                     <Column field="nombre" header="Nombre"></Column>
@@ -121,7 +122,7 @@ const Procesos = () => {
                     )} style={{ textAlign: 'center', width: '8em' }} />
                 </DataTable>
 
-                <Dialog visible={productDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`${proceso ? 'Editar' : 'Nuevo'} Tipo de Ubicación`} modal className="p-fluid" onHide={hideDialog}>
+                <Dialog visible={productDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`${proceso ? 'Editar' : 'Nuevo'} Proceso`} modal className="p-fluid" onHide={hideDialog}>
                     <div className="p-field">
                         <label htmlFor="nombre" className="font-weight-bold">Nombre</label>
                         <InputText id="nombre" value={proceso?.nombre || ''} onChange={(e) => onInputChange(e, 'nombre')} required autoFocus className="form-control" />
@@ -142,7 +143,7 @@ const Procesos = () => {
                     <div className="p-d-flex p-ai-center p-p-3">
                         <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem', color: 'var(--danger-color)' }} />
                         {proceso && (
-                            <span>¿Seguro que quieres eliminar el tipo de ubicación <b>{proceso.nombre}</b>?</span>
+                            <span>¿Seguro que quieres eliminar el proceso <b>{proceso.nombre}</b>?</span>
                         )}
                     </div>
                 </Dialog>

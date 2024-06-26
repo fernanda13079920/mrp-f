@@ -22,7 +22,7 @@ const Ubicaciones = () => {
     // Función para obtener la lista de tipos de ubicaciones
     const fetchUbicaciones = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/ubicacion");
+            const response = await axios.get("http://3.147.242.40/api/ubicacion");
             setUbicaciones(response.data.data);
         } catch (error) {
             console.error("Error fetching ubicaciones:", error);
@@ -39,7 +39,7 @@ const Ubicaciones = () => {
 // Función para obtener la lista de tipos de ubicaciones
 const fetchTipoUbicaciones = async () => {
     try {
-        const response = await axios.get("http://127.0.0.1:8000/api/tipo-ubicacion");
+        const response = await axios.get("http://3.147.242.40/api/tipo-ubicacion");
         setTipoUbicaciones(response.data.data);
     } catch (error) {
         console.error("Error fetching tipo ubicaciones:", error);
@@ -78,9 +78,9 @@ useEffect(() => {
         if (ubicacion.tipo_id && ubicacion.direccion && ubicacion.direccion.trim()) {
             try {
                 if (ubicacion.id) {
-                    await axios.put(`http://127.0.0.1:8000/api/ubicacion/${ubicacion.id}`, ubicacion);
+                    await axios.put(`http://3.147.242.40/api/ubicacion/${ubicacion.id}`, ubicacion);
                 } else {
-                    await axios.post(`http://127.0.0.1:8000/api/ubicacion`, ubicacion);
+                    await axios.post(`http://3.147.242.40/api/ubicacion`, ubicacion);
                 }
                 setProductDialog(false);
                 setUbicacion(null);
@@ -108,7 +108,7 @@ useEffect(() => {
     // Eliminar un tipo de ubicación
     const deleteUbicacion = async () => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/ubicacion/${ubicacion.id}`);
+            await axios.delete(`http://3.147.242.40/api/ubicacion/${ubicacion.id}`);
             fetchUbicaciones();
             setDeleteProductsDialog(false);
             setUbicacion(null);
@@ -154,8 +154,8 @@ useEffect(() => {
                         options={tipoUbicaciones.map(tipo => ({ label: tipo.nombre, value: tipo.id }))}
                         onChange={(e) => onInputChange(e, 'tipo_id')}
                         optionLabel="label"
-                        placeholder="Seleccione un tipo de ubicación"
-                        className="form-control"
+                            placeholder="Seleccione un tipo"
+                            className="p-inputtext"
                     />
                     {submitted && !ubicacion?.tipo_id && <small className="p-error">El tipo de ubicación es requerido.</small>}
                 </div>

@@ -23,7 +23,7 @@ const PERMISOS = {
 const Roles = () => {
     const { authData } = useContext(AuthContext);
     const [roles, setRoles] = useState([]);
-    const [rol, setRol] = useState(null);
+    const [rol, setRol] = useState({ id: null, nombre: '', funcion: '', responsabilidad: '', permisos: [] });
     const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
     const [productDialog, setProductDialog] = useState(false);
     const [submitted, setSubmitted] = useState(false);
@@ -37,9 +37,9 @@ const Roles = () => {
 
     const fetchRoles = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/rol");
+            const response = await axios.get("http://3.147.242.40/api/rol");
             setRoles(response.data.data);
-            console.log('Roles fetched:', response.data.data); // Agrega esta línea para verificar
+            console.log('Roles fetched:', response.data.data);
         } catch (error) {
             console.error("Error fetching roles:", error);
         }
@@ -47,9 +47,9 @@ const Roles = () => {
 
     const fetchPermisos = async () => {
         try {
-            const response = await axios.get("http://127.0.0.1:8000/api/permiso");
-            setPermisos(response.data.data);
-            console.log('Permisos fetched:', response.data.data); // Agrega esta línea para verificar
+            const response = await axios.get("http://3.147.242.40/api/permiso");
+            setPermisos(response.data.data.map(p => ({ label: p.nombre, value: p.id })));
+            console.log('Permisos fetched:', response.data.data);
         } catch (error) {
             console.error("Error fetching permisos:", error);
         }
@@ -63,12 +63,12 @@ const Roles = () => {
 
     const onPermisoChange = (e) => {
         const selectedPermisoIds = e.value;
-        const selectedPermisos = permisos.filter(p => selectedPermisoIds.includes(p.id));
-        setRol(prevRol => ({ ...prevRol, permisos: selectedPermisos }));
+        setRol(prevRol => ({ ...prevRol, permisos: selectedPermisoIds }));
     };
 
     const openNew = () => {
-        setRol({ id: null, nombre: '', funcion: '', responsabilidad: '', permisos: [] });
+        setRol({ id: null, nombre: '', funcion: '', responsabilidad: '.', permisos: [] });
+        setSubmitted(false);
         setProductDialog(true);
     };
 
@@ -80,16 +80,22 @@ const Roles = () => {
     const saveRol = async () => {
         setSubmitted(true);
 
-        if (rol.nombre && rol.funcion && rol.responsabilidad) {
+        if (rol.nombre && rol.funcion && rol.responsabilidad && rol.permisos.length) {
             try {
+                const payload = {
+                    ...rol,
+                    permisos: rol.permisos // Asegúrate de que los permisos se envían correctamente
+                };
+
                 if (rol.id) {
-                    await axios.put(`http://127.0.0.1:8000/api/rol/${rol.id}`, rol);
+                    await axios.put(`http://3.147.242.40/api/rol/${rol.id}`, payload);
                 } else {
-                    await axios.post(`http://127.0.0.1:8000/api/rol`, rol);
+                    await axios.post(`http://3.147.242.40/api/rol`, payload);
                 }
+
                 setProductDialog(false);
-                setRol(null);
-                fetchRoles(); // Actualiza la lista después de guardar
+                fetchRoles(); // Actualiza la lista de roles después de guardar
+                setRol({ id: null, nombre: '', funcion: '', responsabilidad: '.', permisos: [] });
             } catch (error) {
                 console.log("Error saving rol:", error);
             }
@@ -97,7 +103,10 @@ const Roles = () => {
     };
 
     const editRol = (rol) => {
-        setRol(rol);
+        setRol({
+            ...rol,
+            permisos: rol.permisos.map(p => p.id) // Ajusta los permisos para que sean compatibles con el MultiSelect
+        });
         setProductDialog(true);
     };
 
@@ -108,10 +117,10 @@ const Roles = () => {
 
     const deleteRol = async () => {
         try {
-            await axios.delete(`http://127.0.0.1:8000/api/rol/${rol.id}`);
-            fetchRoles(); // Actualiza la lista después de eliminar
+            await axios.delete(`http://3.147.242.40/api/rol/${rol.id}`);
+            fetchRoles();
             setDeleteProductsDialog(false);
-            setRol(null);
+            setRol({ id: null, nombre: '', funcion: '', responsabilidad: '', permisos: [] });
         } catch (error) {
             console.log("Error deleting rol:", error);
         }
@@ -140,7 +149,6 @@ const Roles = () => {
                 <DataTable value={roles} className="p-datatable-sm">
                     <Column field="nombre" header="Nombre"></Column>
                     <Column field="funcion" header="Función"></Column>
-                    <Column field="responsabilidad" header="Responsabilidad"></Column>
                     <Column body={(rowData) => (
                         <div className="p-d-flex p-jc-center">
                             <Button className="p-button-rounded p-button-outlined p-button-success p-button-sm p-m-2" onClick={() => verPermisos(rowData)} label="Permisos" />
@@ -166,16 +174,11 @@ const Roles = () => {
                         {submitted && !rol?.funcion && <small className="p-error">La función es requerida.</small>}
                     </div>
                     <div className="p-field">
-                        <label htmlFor="responsabilidad" className="font-weight-bold">Responsabilidad</label>
-                        <InputText id="responsabilidad" value={rol?.responsabilidad || ''} onChange={(e) => onInputChange(e, 'responsabilidad')} required autoFocus className="form-control" />
-                        {submitted && !rol?.responsabilidad && <small className="p-error">La responsabilidad es requerida.</small>}
-                    </div>
-                    <div className="p-field">
                         <label htmlFor="permisos" className="font-weight-bold">Permisos</label>
                         <MultiSelect
                             id="permisos"
-                            value={rol?.permisos.map(p => p.id) || []}
-                            options={permisos.map(p => ({ label: p.nombre, value: p.id }))}
+                            value={rol?.permisos || []}
+                            options={permisos}
                             onChange={onPermisoChange}
                             optionLabel="label"
                             placeholder="Seleccione permisos"
@@ -194,14 +197,16 @@ const Roles = () => {
                 <Dialog visible={deleteProductsDialog} style={{ width: '450px' }} header="Confirmar" modal footer={deleteProductsDialogFooter} onHide={() => setDeleteProductsDialog(false)}>
                     <div className="confirmation-content">
                         <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem' }} />
-                        {rol && <span>¿Está seguro de que desea eliminar el rol <b>{rol.nombre}</b>?</span>}
+                        {rol && <span>¿Estás seguro de que deseas eliminar <b>{rol.nombre}</b>?</span>}
                     </div>
                 </Dialog>
-
-                <Dialog visible={verDialog} style={{ width: '450px' }} header="Permisos del Rol" modal onHide={() => setVerDialog(false)}>
-                    <div className="confirmation-content">
-                        {rol && rol.permisos.map(p => <p key={p.id}>{p.nombre}</p>)}
-                    </div>
+                <Dialog visible={verDialog} style={{ width: '40rem', overflowY: 'auto', paddingBottom: '0' }} header={`Permisos de ${rol.nombre}`} modal className="p-fluid" onHide={() => setVerDialog(false)}>
+                    <h4>Permisos asignados:</h4>
+                    <ul>
+                        {rol.permisos.map((permiso, index) => (
+                            <li key={index}>{permiso.nombre}</li>
+                        ))}
+                    </ul>
                 </Dialog>
             </div>
         </div>
@@ -209,4 +214,3 @@ const Roles = () => {
 };
 
 export default Roles;
-
