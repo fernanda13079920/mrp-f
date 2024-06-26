@@ -14,7 +14,6 @@ import styled, { ThemeContext } from 'styled-components';
 import { AuthContext } from '../context/authContext';
 
 const PERMISOS = {
-    VIEW: 29,
     CREATE: 30,
     EDIT: 31,
     DELETE: 32
