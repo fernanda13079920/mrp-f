@@ -212,7 +212,13 @@ const Produccion = () => {
                     <Column field="usuario_trabajador.username" header="Usuario Trabajador"></Column>
                     <Column field="estado_produccion.descripcion" header="Estado Producción"></Column>
                     <Column body={(rowData) => (
-                        <Button label="Abrir PDF" icon="pi pi-file-pdf" className="p-button-rounded p-button-outlined p-button-danger p-m-2" onClick={() => window.open(rowData.pdf_url, '_blank')} />
+                        <Button label="Abrir PDF" icon="pi pi-file-pdf" className="p-button-rounded p-button-outlined p-button-danger p-m-2" onClick={
+                            () => {
+                                // console.log(rowData.pdf_data);
+                                window.open(rowData.pdf_data, '_blank')
+                                // window.open(rowData.pdf_url, '_blank')
+                            }
+                        } />
                     )}></Column>
                     <Column body={(rowData) => (
                         <div className="p-d-flex p-jc-center">
