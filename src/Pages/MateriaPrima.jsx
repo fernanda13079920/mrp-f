@@ -11,6 +11,7 @@ import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/saga-blue/theme.css'; // Tema de PrimeReact
 import 'primereact/resources/primereact.min.css'; // Estilos base de PrimeReact
 import 'primeflex/primeflex.css'; // Estilos de PrimeFlex para alineación y disposición
+import { format } from "date-fns";
 
 const MateriasPrimas = () => {
     const [productos, setProductos] = useState([]);
@@ -76,13 +77,23 @@ useEffect(() => {
     // Guardar un nuevo producto o actualizar uno existente
     const saveProducto = async () => {
         setSubmitted(true);
+        const date = new Date(producto.fecha_creacion);
+        const dateVenc = new Date(producto.fecha_vencimiento);
+
+        const formattedDatecraete = format (date, 'yyyy-MM-dd');
+        const formattedDateVenci = format(dateVenc, 'yyyy-MM-dd');
+        producto.fecha_creacion = formattedDatecraete;
+        producto.fecha_vencimiento = formattedDateVenci;
+
+        // console.log(producto);
 
         if (producto.tipo_id && producto.nombre && producto.descripcion && producto.fecha_creacion && producto.fecha_vencimiento && producto.serie && producto.serie.trim()) {
             try {
                 if (producto.id) {
                     await axios.put(`http://3.147.242.40/api/articulo/${producto.id}`, producto);
                 } else {
-                    await axios.post(`http://3.147.242.40/api/articulo`, producto);
+                    const a = await axios.post(`http://3.147.242.40/api/articulo`, producto);
+                    console.log(a);
                 }
                 setProductDialog(false);
                 setProducto(null);
@@ -140,7 +151,7 @@ useEffect(() => {
     return (
         <div className="container mt-4">
             <div className="card shadow p-4">
-                <h1 className="text-primary mb-4">Listado de Productos</h1>
+                <h1 className="text-primary mb-4">Listado de Materia Prima </h1>
                 
                 <Button label="Nuevo Producto" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
 

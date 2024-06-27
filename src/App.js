@@ -19,6 +19,8 @@ import UbicacionArticulos from './Pages/UbicacionArticulo';
 import Proveedores from './Pages/Proveedor';
 import Perfil from './Pages/Perfil';
 import OrdenProduccion from "./Pages/OrdenProduccion";
+import OrdenCompra from "./Pages/OrdenCompra";
+
 import axios from 'axios';
 
 export const ThemeContext = createContext(null);
@@ -92,6 +94,8 @@ function App() {
                     <Route path="/ubicacion-articulo" element={<UbicacionArticulos />} />
                     <Route path="/proveedores" element={<Proveedores />} />
                     <Route path="/orden-produccion" element={<OrdenProduccion />} />
+                    <Route path="/orden-compra" element={<OrdenCompra/>} />
+
                   </Routes>
                 </MainContent>
               </Container>

@@ -236,8 +236,13 @@ const linksArray = [
         label: "Orden de Produccion",
         to: "/orden-produccion",
       },
+      {
+        label: "Orden de Compra",
+        to: "/orden-compra",
+      },
     ],
   },
+  
 ];
 
 const secondarylinksArray = [

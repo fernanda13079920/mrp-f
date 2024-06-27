@@ -12,6 +12,7 @@ import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeflex/primeflex.css';
+import { format } from 'date-fns';
 
 const Productos = () => {
     const [productos, setProductos] = useState([]);
@@ -90,17 +91,22 @@ const Productos = () => {
         setProducto({ ...producto, materiales: updatedMaterials });
     };
 
+
     // Función para manejar cambios en la cantidad de materiales
     const onMaterialQuantityChange = (e, materialId) => {
         const cantidad = parseInt(e.target.value, 10);
         const updatedMaterials = producto.materiales.map(material =>
-            material.id === materialId ? { ...material, pivot: { ...material.pivot, cantidad: cantidad } } : material
+            material.id === materialId ? 
+            { ...material, pivot: { ...material.pivot, cantidad: cantidad } } 
+            : material
         );
         setProducto(prevProducto => ({
             ...prevProducto,
             materiales: updatedMaterials
         }));
     };
+
+    
 
     // Función para abrir el formulario de nuevo producto
     const openNew = () => {
@@ -114,16 +120,40 @@ const Productos = () => {
         setSubmitted(false);
     };
 
+    //formatear pivote
+    const formatMaterials = (materials) => {
+        return materials.map(material => ({
+            id: material.id,
+            cantidad:  material.pivot.cantidad
+            // cantidad: material.pivot ? material.pivot.cantidad : 0
+        }));
+    };
+    
+
     // Función para guardar un producto
     const saveProducto = async () => {
         setSubmitted(true);
 
+        const date = new Date(producto.fecha_creacion);
+        const dateVenc = new Date(producto.fecha_vencimiento);
+
+        const formattedDatecraete = format(date, 'yyyy-MM-dd');
+        const formattedDateVenci = format(dateVenc, 'yyyy-MM-dd');
+        producto.fecha_creacion = formattedDatecraete;
+        producto.fecha_vencimiento = formattedDateVenci;
+        const formattedMaterials = formatMaterials(producto.materiales);
+        const copia = { ...producto, materiales: formattedMaterials }; 
+        copia['imagen'] = '/ruta/imagen';
+
         if (producto.tipo_id && producto.nombre && producto.descripcion && producto.fecha_creacion && producto.fecha_vencimiento && producto.materiales.length && producto.serie.trim()) {
             try {
                 if (producto.id) {
-                    await axios.put(`http://3.147.242.40/api/articulo/${producto.id}`, producto);
+                    await axios.put(`http://3.147.242.40/api/articulo/${producto.id}`, copia);
                 } else {
-                    await axios.post(`http://3.147.242.40/api/articulo`, producto);
+                    console.log(copia);
+                    const a =  await axios.post(`http://3.147.242.40/api/articulo`, copia);
+                    console.log(a);
+
                 }
                 setProductDialog(false);
                 setProducto(null);

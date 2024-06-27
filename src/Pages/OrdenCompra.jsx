@@ -17,9 +17,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import styled from 'styled-components';
 import { AuthContext } from '../context/authContext';
 
-const Produccion = () => {
+const Compra = () => {
     const { authData } = useContext(AuthContext);
     const [producciones, setProducciones] = useState([]);
+    const [proveedor, setProveedor] = useState([]);
+
     const [usuarios, setUsuarios] = useState([]);
     const [productos, setProductos] = useState([]);
     const [produccion, setProduccion] = useState(null);
@@ -28,8 +30,18 @@ const Produccion = () => {
 
     const fetchProducciones = async () => {
         try {
-            const response = await axios.get("http://3.147.242.40/api/orden-produccion");
+            const response = await axios.get("http://3.147.242.40/api/orden-compra");
             setProducciones(response.data.data);
+        } catch (error) {
+            console.error("Error fetching producciones:", error);
+        }
+    };
+
+
+    const fetchProveedores = async () => {
+        try {
+            const response = await axios.get("http://3.147.242.40/api/proveedor");
+            setProveedor(response.data.data);
         } catch (error) {
             console.error("Error fetching producciones:", error);
         }
@@ -265,4 +277,4 @@ const Produccion = () => {
     );
 };
 
-export default Produccion;
+export default Compra;
