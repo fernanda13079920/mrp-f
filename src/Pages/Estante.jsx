@@ -14,9 +14,9 @@ import styled, { ThemeContext } from 'styled-components';
 import { AuthContext } from '../context/authContext';
 
 const PERMISOS = {
-    CREATE: 30,
-    EDIT: 31,
-    DELETE: 32
+    CREATE: 34,
+    EDIT: 35,
+    DELETE: 36
 };
 
 const Estantes = () => {
@@ -117,33 +117,42 @@ const Estantes = () => {
             <Button label="Eliminar" icon="pi pi-check" className="p-button-danger" onClick={deleteEstante} />
         </React.Fragment>
     );
+    const [filtroGlobal, setFiltroGlobal] = useState('');
 
+    const onFiltroGlobalChange = (e) => {
+        setFiltroGlobal(e.target.value);
+    };
+
+    const filterGlobal = (estantes) => {
+        return estantes.filter(estante =>
+            estante.ubicacion.direccion.toLowerCase().includes(filtroGlobal.toLowerCase())
+        );
+    };
     return (
         <Container>
             <div className="card shadow p-4">
                 <h1 className="text-primary mb-4">Listado de Estantes</h1>
-                {authData.permisos.includes(PERMISOS.VIEW) && (
-                    <>
-                        {authData.permisos.includes(PERMISOS.CREATE) && (
-                            <Button label="Nuevo Estante" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
-                        )}
-
-                        <DataTable value={estantes} className="p-datatable-sm">
-                            <Column field="ubicacion.direccion" header="Direccion"></Column>
-                            <Column field="cant_fila" header="Cantidad Filas"></Column>
-                            <Column body={(rowData) => (
-                                <div className="p-d-flex p-jc-center">
-                                    {authData.permisos.includes(PERMISOS.EDIT) && (
-                                        <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editEstante(rowData)} />
-                                    )}
-                                    {authData.permisos.includes(PERMISOS.DELETE) && (
-                                        <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteEstante(rowData)} />
-                                    )}
-                                </div>
-                            )} style={{ textAlign: 'center', width: '8em' }} />
-                        </DataTable>
-                    </>
+                {authData.permisos.includes(PERMISOS.CREATE) && (
+                    <Button label="Nuevo Estante" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
                 )}
+                <div className="p-field">
+                    <label htmlFor="filtroGlobal" className="font-weight-bold">Buscar</label>
+                    <InputText id="filtroGlobal" value={filtroGlobal} onChange={onFiltroGlobalChange} className="form-control mb-4" />
+                </div>
+                <DataTable value={filterGlobal(estantes)} className="p-datatable-sm">
+                    <Column field="ubicacion.direccion" header="Direccion" sortable></Column>
+                    <Column field="cant_fila" header="Cantidad Filas" sortable></Column>
+                    <Column body={(rowData) => (
+                        <div className="p-d-flex p-jc-center">
+                            {authData.permisos.includes(PERMISOS.EDIT) && (
+                                <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editEstante(rowData)} />
+                            )}
+                            {authData.permisos.includes(PERMISOS.DELETE) && (
+                                <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteEstante(rowData)} />
+                            )}
+                        </div>
+                    )} style={{ textAlign: 'center', width: '8em' }} />
+                </DataTable>
 
                 <Dialog visible={estanteDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`${estante ? 'Editar' : 'Nuevo'} Estante`} modal className="p-fluid" onHide={hideDialog}>
                     <div className="p-field">
@@ -161,13 +170,13 @@ const Estantes = () => {
                         />
                         {submitted && !estante?.ubicacion_id && <small className="p-error">La ubicación es requerida.</small>}
                     </div>
-                    
+
                     <div className="p-field">
                         <label htmlFor="cant_fila" className="font-weight-bold">Cantidad Filas</label>
                         <InputText id="cant_fila" value={estante?.cant_fila || ''} onChange={(e) => onInputChange(e, 'cant_fila')} required autoFocus className="form-control" />
                         {submitted && !estante?.cant_fila && <small className="p-error">La cantidad de filas es requerida.</small>}
                     </div>
-                    
+
                     <div className="p-d-flex p-jc-end mt-4">
                         <Button label="Cancelar" icon="pi pi-times" className="p-button-text p-button-outlined p-button-secondary" onClick={hideDialog} />
                         <Button label="Guardar" icon="pi pi-check" className="p-button p-button-primary p-button-outlined p-ml-2" onClick={saveEstante} />

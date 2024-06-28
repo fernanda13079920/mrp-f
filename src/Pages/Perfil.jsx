@@ -50,7 +50,7 @@ const Profile = () => {
       <div className="card shadow p-4">
         <h1 className="text-primary mb-4">Perfil de Usuario</h1>
         <div className="row">
-          
+
           <div className="col-md-9">
             <p><strong>Nombre:</strong> {userData.persona.nombre} {userData.persona.apellido_p} {userData.persona.apellido_m}</p>
             <p><strong>Correo:</strong> {userData.persona.correo}</p>

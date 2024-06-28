@@ -251,6 +251,19 @@ const linksArray = [
       },
     ],
   },
+  {
+    label: "Reportes",
+    subMenu: [
+      {
+        label: "Reporte Ejecutivo",
+        to: "/ejecutivo",
+      },
+      {
+        label: "Reporte Analitico",
+        to: "/analitico",
+      },
+    ],
+  },
 ];
 
 const secondarylinksArray = [

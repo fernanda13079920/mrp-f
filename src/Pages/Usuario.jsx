@@ -14,9 +14,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { AuthContext } from '../context/authContext';
 
 const PERMISOS = {
-    CREATE: 2,
-    EDIT: 3,
-    DELETE: 4
+    CREATE: 6,
+    EDIT: 7,
+    DELETE: 8
 };
 
 const Usuarios = () => {
@@ -180,7 +180,19 @@ const Usuarios = () => {
             <Button label="Eliminar" icon="pi pi-check" className="p-button-danger" onClick={deleteUsuario} />
         </React.Fragment>
     );
+    const [filtroGlobal, setFiltroGlobal] = useState('');
 
+    const onFiltroGlobalChange = (e) => {
+        setFiltroGlobal(e.target.value);
+    };
+
+    const filterGlobal = (usuarios) => {
+        return usuarios.filter(usuario =>
+            usuario.persona.nombre.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
+            usuario.persona.apellido_p.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
+            usuario.rol.nombre.toLowerCase().includes(filtroGlobal.toLowerCase())
+        );
+    };
     return (
         <div className="container mt-4">
             <div className="card shadow p-4">
@@ -188,12 +200,15 @@ const Usuarios = () => {
                 {authData.permisos.includes(PERMISOS.CREATE) && (
                     <Button label="Nuevo Usuario" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
                 )}
-
-                <DataTable value={usuarios} className="p-datatable-sm">
-                    <Column field="persona.nombre" header="Nombre" />
-                    <Column field="persona.apellido_p" header="Apellido" />
-                    <Column field="rol.nombre" header="Rol" />
-                    <Column field="persona.celular" header="Celular" />
+                <div className="p-field">
+                    <label htmlFor="filtroGlobal" className="font-weight-bold">Buscar</label>
+                    <InputText id="filtroGlobal" value={filtroGlobal} onChange={onFiltroGlobalChange} className="form-control mb-4" />
+                </div>
+                <DataTable value={filterGlobal(usuarios)} className="p-datatable-sm">
+                    <Column field="persona.nombre" header="Nombre" sortable />
+                    <Column field="persona.apellido_p" header="Apellido" sortable />
+                    <Column field="rol.nombre" header="Rol" sortable />
+                    <Column field="persona.celular" header="Celular" sortable />
                     <Column body={(rowData) => (
                         <div className="p-d-flex p-jc-center">
                             <Button label="Ver Detalles" icon="pi pi-eye" className="p-button-rounded p-button-outlined p-button-success p-button-sm p-m-2" onClick={() => viewUsuario(rowData)} />
@@ -284,4 +299,3 @@ const Usuarios = () => {
 };
 
 export default Usuarios;
-

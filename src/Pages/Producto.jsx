@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -13,8 +13,14 @@ import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeflex/primeflex.css';
 import { format } from 'date-fns';
-
+import { AuthContext } from '../context/authContext';
+const PERMISOS = {
+    CREATE: 10,
+    EDIT: 11,
+    DELETE: 12
+};
 const Productos = () => {
+    const { authData } = useContext(AuthContext);
     const [productos, setProductos] = useState([]);
     const [producto, setProducto] = useState(null);
     const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
@@ -96,9 +102,9 @@ const Productos = () => {
     const onMaterialQuantityChange = (e, materialId) => {
         const cantidad = parseInt(e.target.value, 10);
         const updatedMaterials = producto.materiales.map(material =>
-            material.id === materialId ? 
-            { ...material, pivot: { ...material.pivot, cantidad: cantidad } } 
-            : material
+            material.id === materialId ?
+                { ...material, pivot: { ...material.pivot, cantidad: cantidad } }
+                : material
         );
         setProducto(prevProducto => ({
             ...prevProducto,
@@ -106,7 +112,7 @@ const Productos = () => {
         }));
     };
 
-    
+
 
     // Función para abrir el formulario de nuevo producto
     const openNew = () => {
@@ -124,11 +130,11 @@ const Productos = () => {
     const formatMaterials = (materials) => {
         return materials.map(material => ({
             id: material.id,
-            cantidad:  material.pivot.cantidad
+            cantidad: material.pivot.cantidad
             // cantidad: material.pivot ? material.pivot.cantidad : 0
         }));
     };
-    
+
 
     // Función para guardar un producto
     const saveProducto = async () => {
@@ -142,7 +148,7 @@ const Productos = () => {
         producto.fecha_creacion = formattedDatecraete;
         producto.fecha_vencimiento = formattedDateVenci;
         const formattedMaterials = formatMaterials(producto.materiales);
-        const copia = { ...producto, materiales: formattedMaterials }; 
+        const copia = { ...producto, materiales: formattedMaterials };
         copia['imagen'] = '/ruta/imagen';
 
         if (producto.tipo_id && producto.nombre && producto.descripcion && producto.fecha_creacion && producto.fecha_vencimiento && producto.materiales.length && producto.serie.trim()) {
@@ -151,7 +157,7 @@ const Productos = () => {
                     await axios.put(`http://3.147.242.40/api/articulo/${producto.id}`, copia);
                 } else {
                     console.log(copia);
-                    const a =  await axios.post(`http://3.147.242.40/api/articulo`, copia);
+                    const a = await axios.post(`http://3.147.242.40/api/articulo`, copia);
                     console.log(a);
 
                 }
@@ -213,26 +219,45 @@ const Productos = () => {
             <Button label="Eliminar" icon="pi pi-check" className="p-button-danger" onClick={deleteProducto} />
         </React.Fragment>
     );
+    const [filtroGlobal, setFiltroGlobal] = useState('');
 
+    const onFiltroGlobalChange = (e) => {
+        setFiltroGlobal(e.target.value);
+    };
+
+    const filterGlobal = (productos) => {
+        return productos.filter(producto =>
+            producto.nombre.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
+            producto.descripcion.toLowerCase().includes(filtroGlobal.toLowerCase())
+        );
+    };
     return (
         <div className="container mt-4">
             <div className="card shadow p-4">
                 <h1 className="text-primary mb-4">Listado de Productos</h1>
-
-                <Button label="Nuevo Producto" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
-
-                <DataTable value={productos} className="p-datatable-sm">
-                    <Column field="nombre" header="Nombre"></Column>
-                    <Column field="descripcion" header="Descripción"></Column>
-                    <Column field="fecha_creacion" header="Creación"></Column>
-                    <Column field="fecha_vencimiento" header="Vencimiento"></Column>
-                    <Column field="serie" header="Serie"></Column>
-                    <Column field="cantidad" header="Cantidad"></Column>
+                {authData.permisos.includes(PERMISOS.CREATE) && (
+                    <Button label="Nuevo Producto" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
+                )}
+                <div className="p-field">
+                    <label htmlFor="filtroGlobal" className="font-weight-bold">Buscar</label>
+                    <InputText id="filtroGlobal" value={filtroGlobal} onChange={onFiltroGlobalChange} className="form-control mb-4" />
+                </div>
+                <DataTable value={filterGlobal(productos)} className="p-datatable-sm">
+                    <Column field="nombre" header="Nombre" sortable></Column>
+                    <Column field="descripcion" header="Descripción" sortable></Column>
+                    <Column field="fecha_creacion" header="Creación" sortable></Column>
+                    <Column field="fecha_vencimiento" header="Vencimiento" sortable></Column>
+                    <Column field="serie" header="Serie" sortable></Column>
+                    <Column field="cantidad" header="Cantidad" sortable></Column>
                     <Column body={(rowData) => (
                         <div className="p-d-flex p-jc-center">
                             <Button className="p-button-rounded p-button-outlined p-button-success p-button-sm p-mr-2" onClick={() => verMaterial(rowData)} label="Materiales" />
-                            <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editProducto(rowData)} />
-                            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteProducto(rowData)} />
+                            {authData.permisos.includes(PERMISOS.EDIT) && (
+                                <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editProducto(rowData)} />
+                            )}
+                            {authData.permisos.includes(PERMISOS.DELETE) && (
+                                <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteProducto(rowData)} />
+                            )}
                         </div>
                     )} style={{ textAlign: 'center', width: '15em' }} />
                 </DataTable>

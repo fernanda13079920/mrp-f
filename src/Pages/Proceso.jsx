@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -9,8 +9,14 @@ import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/saga-blue/theme.css'; // Tema de PrimeReact
 import 'primereact/resources/primereact.min.css'; // Estilos base de PrimeReact
 import 'primeflex/primeflex.css'; // Estilos de PrimeFlex para alineación y disposición
-
+import { AuthContext } from '../context/authContext';
+const PERMISOS = {
+    CREATE: 18,
+    EDIT: 19,
+    DELETE: 20
+};
 const Procesos = () => {
+    const { authData } = useContext(AuthContext);
     const [procesos, setProcesos] = useState([]);
     const [proceso, setProceso] = useState(null);
     const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
@@ -41,7 +47,7 @@ const Procesos = () => {
 
     // Abrir el diálogo para agregar/editar tipo de ubicación
     const openNew = () => {
-        setProceso({ id: null, nombre: '', descripcion:'' });
+        setProceso({ id: null, nombre: '', descripcion: '' });
         setProductDialog(true);
     };
 
@@ -55,7 +61,7 @@ const Procesos = () => {
     const saveProceso = async () => {
         setSubmitted(true);
 
-        if ( proceso.nombre && proceso.descripcion && proceso.descripcion.trim()) {
+        if (proceso.nombre && proceso.descripcion && proceso.descripcion.trim()) {
             try {
                 if (proceso.id) {
                     await axios.put(`http://3.147.242.40/api/proceso/${proceso.id}`, proceso);
@@ -94,7 +100,7 @@ const Procesos = () => {
             console.log("Error deleting tipo ubicacion:", error);
         }
     };
-    
+
 
     // Renderizar el pie de página del diálogo de confirmación de eliminación
     const deleteProductsDialogFooter = (
@@ -103,21 +109,41 @@ const Procesos = () => {
             <Button label="Eliminar" icon="pi pi-check" className="p-button-danger" onClick={deleteProceso} />
         </React.Fragment>
     );
+    const [filtroGlobal, setFiltroGlobal] = useState('');
 
+    const onFiltroGlobalChange = (e) => {
+        setFiltroGlobal(e.target.value);
+    };
+
+    const filterGlobal = (procesos) => {
+        return procesos.filter(proceso =>
+            proceso.nombre.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
+            proceso.descripcion.toLowerCase().includes(filtroGlobal.toLowerCase())
+        );
+    };
     // Renderizar el componente
     return (
         <div className="container mt-4">
             <div className="card shadow p-4">
                 <h1 className="text-primary mb-4">Listado de Procesos</h1>
-                <Button label="Nuevo Proceso" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
-
-                <DataTable value={procesos} className="p-datatable-sm">
-                    <Column field="nombre" header="Nombre"></Column>
-                    <Column field="descripcion" header="Descripcion"></Column>
+                {authData.permisos.includes(PERMISOS.CREATE) && (
+                    <Button label="Nuevo Proceso" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
+                )}
+                <div className="p-field">
+                    <label htmlFor="filtroGlobal" className="font-weight-bold">Buscar</label>
+                    <InputText id="filtroGlobal" value={filtroGlobal} onChange={onFiltroGlobalChange} className="form-control mb-4" />
+                </div>
+                <DataTable value={filterGlobal(procesos)} className="p-datatable-sm">
+                    <Column field="nombre" header="Nombre" sortable></Column>
+                    <Column field="descripcion" header="Descripcion" sortable></Column>
                     <Column body={(rowData) => (
                         <div className="p-d-flex p-jc-center">
-                            <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editProceso(rowData)} />
-                            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteProceso(rowData)} />
+                            {authData.permisos.includes(PERMISOS.EDIT) && (
+                                <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editProceso(rowData)} />
+                            )}
+                            {authData.permisos.includes(PERMISOS.DELETE) && (
+                                <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteProceso(rowData)} />
+                            )}
                         </div>
                     )} style={{ textAlign: 'center', width: '8em' }} />
                 </DataTable>

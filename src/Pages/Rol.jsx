@@ -136,7 +136,18 @@ const Roles = () => {
             <Button label="Eliminar" icon="pi pi-check" className="p-button-danger" onClick={deleteRol} />
         </React.Fragment>
     );
+    const [filtroGlobal, setFiltroGlobal] = useState('');
 
+    const onFiltroGlobalChange = (e) => {
+        setFiltroGlobal(e.target.value);
+    };
+
+    const filterGlobal = (roles) => {
+        return roles.filter(rol =>
+            rol.nombre.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
+            rol.funcion.toLowerCase().includes(filtroGlobal.toLowerCase())
+        );
+    };
     return (
         <div className="container mt-4">
             <div className="card shadow p-4">
@@ -144,10 +155,13 @@ const Roles = () => {
                 {authData.permisos.includes(PERMISOS.CREATE) && (
                     <Button label="Nuevo Rol" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
                 )}
-
-                <DataTable value={roles} className="p-datatable-sm">
-                    <Column field="nombre" header="Nombre"></Column>
-                    <Column field="funcion" header="Función"></Column>
+                <div className="p-field">
+                    <label htmlFor="filtroGlobal" className="font-weight-bold">Buscar</label>
+                    <InputText id="filtroGlobal" value={filtroGlobal} onChange={onFiltroGlobalChange} className="form-control mb-4" />
+                </div>
+                <DataTable value={filterGlobal(roles)} className="p-datatable-sm">
+                    <Column field="nombre" header="Nombre" sortable></Column>
+                    <Column field="funcion" header="Función" sortable></Column>
                     <Column body={(rowData) => (
                         <div className="p-d-flex p-jc-center">
                             <Button className="p-button-rounded p-button-outlined p-button-success p-button-sm p-m-2" onClick={() => verPermisos(rowData)} label="Permisos" />

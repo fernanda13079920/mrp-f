@@ -16,7 +16,11 @@ import 'primeflex/primeflex.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styled from 'styled-components';
 import { AuthContext } from '../context/authContext';
-
+const PERMISOS = {
+    CREATE: 42,
+    EDIT: 43,
+    DELETE: 44
+};
 const Produccion = () => {
     const { authData } = useContext(AuthContext);
     const [producciones, setProducciones] = useState([]);
@@ -100,34 +104,34 @@ const Produccion = () => {
 
     const saveProduccion = async () => {
         setSubmitted(true);
-    
+
         if (produccion.usuario_id_tr && produccion.productos.length > 0) {
             try {
                 const doc = new jsPDF();
-    
+
                 // Título
                 doc.setFontSize(18);
                 doc.setFont('helvetica', 'bold');
                 doc.text(`Orden de Producción`, 105, 20, null, null, 'center');
-    
+
                 // Subtítulos
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'normal');
                 doc.text(`Generado por: ${authData.username}`, 20, 30);
                 doc.text(`Trabajador: ${usuarios.find(u => u.id === produccion.usuario_id_tr)?.username || ''}`, 20, 40);
                 doc.text(`Fecha y Hora: ${new Date().toLocaleString()}`, 20, 50);
-    
+
                 // Agregar una línea
                 doc.setLineWidth(0.5);
                 doc.line(20, 55, 190, 55);
-    
+
                 // Crear la tabla de productos
                 const tableColumn = ["Producto", "Cantidad"];
                 const tableRows = produccion.productos.map(producto => {
                     const productName = productos.find(p => p.id === producto.id)?.nombre || 'Desconocido';
                     return [productName, producto.cantidad.toString()];
                 });
-    
+
                 // Agregar la tabla al documento
                 doc.autoTable({
                     startY: 60,
@@ -140,10 +144,10 @@ const Produccion = () => {
                 doc.save('produccion.pdf');
                 // Generar el Blob del PDF
                 const pdfBlob = doc.output('blob');
-    
+
                 // Convertir Blob a File
                 const pdfFile = new File([pdfBlob], 'produccion.pdf', { type: 'application/pdf' });
-    
+
                 // Construir FormData
                 const formData = new FormData();
                 formData.append('pdf_data', pdfFile);
@@ -151,12 +155,12 @@ const Produccion = () => {
                 formData.append('usuario_id_tr', produccion.usuario_id_tr);
                 formData.append('estado_produccion_id', 1); // Asumiendo que el estado de producción es fijo en 1
                 formData.append('fecha_hora', new Date().toISOString().slice(0, 19).replace('T', ' ')); // Formato de fecha requerido
-    
+
                 // Verificar FormData
                 formData.forEach((value, key) => {
                     console.log(`${key}: ${value}`);
                 });
-                
+
                 console.log(formData);
                 // Enviar la solicitud
                 const response = await axios.post(`http://3.147.242.40/api/orden-produccion`, formData, {
@@ -164,15 +168,15 @@ const Produccion = () => {
                         'Content-Type': 'multipart/form-data'
                     }
                 });
-    
+
                 // const response = await axios.post(`http://127.0.0.1:8000/api/orden-produccion`, formData, {
                 //     // headers: {
                 //     //     'Content-Type': 'multipart/form-data'
                 //     // }
                 // });
                 console.log('Response:', response);
-    
-                // setProductDialog(false);
+
+                setProductDialog(false);
                 // setProduccion(null);
                 // fetchProducciones();
             } catch (error) {
@@ -180,7 +184,7 @@ const Produccion = () => {
             }
         }
     };
-    
+
 
     const editProduccion = (produccion) => {
         setProduccion(produccion);
@@ -200,17 +204,34 @@ const Produccion = () => {
             console.log("Error deleting produccion:", error);
         }
     };
+    const [filtroGlobal, setFiltroGlobal] = useState('');
 
+    const onFiltroGlobalChange = (e) => {
+        setFiltroGlobal(e.target.value);
+    };
+
+    const filterGlobal = (producciones) => {
+        return producciones.filter(produccion =>
+            //produccion.usuario_generado.username.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
+            produccion.usuario_trabajador.username.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
+            produccion.estado_produccion.descripcion.toLowerCase().includes(filtroGlobal.toLowerCase())
+        );
+    };
     return (
         <div className="container mt-4">
             <div className="card shadow p-4">
                 <h1 className="text-primary mb-4">Órdenes de Producción</h1>
-                <Button label="Nueva Producción" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
-                <DataTable value={producciones} className="p-datatable-sm">
-                    <Column field="id" header="ID"></Column>
-                    <Column field="usuario_generado.username" header="Usuario Generado"></Column>
-                    <Column field="usuario_trabajador.username" header="Usuario Trabajador"></Column>
-                    <Column field="estado_produccion.descripcion" header="Estado Producción"></Column>
+                {authData.permisos.includes(PERMISOS.CREATE) && (
+                    <Button label="Nueva Producción" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
+                )}
+                <div className="p-field">
+                    <label htmlFor="filtroGlobal" className="font-weight-bold">Buscar</label>
+                    <InputText id="filtroGlobal" value={filtroGlobal} onChange={onFiltroGlobalChange} className="form-control mb-4" />
+                </div>
+                <DataTable value={filterGlobal(producciones)} className="p-datatable-sm">
+                    <Column field="usuario_generado.username" header="Usuario Generado" sortable></Column>
+                    <Column field="usuario_trabajador.username" header="Usuario Trabajador" sortable></Column>
+                    <Column field="estado_produccion.descripcion" header="Estado Producción" sortable></Column>
                     <Column body={(rowData) => (
                         <Button label="Abrir PDF" icon="pi pi-file-pdf" className="p-button-rounded p-button-outlined p-button-danger p-m-2" onClick={
                             () => {
@@ -222,8 +243,12 @@ const Produccion = () => {
                     )}></Column>
                     <Column body={(rowData) => (
                         <div className="p-d-flex p-jc-center">
-                            <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-m-2" onClick={() => editProduccion(rowData)} />
-                            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteProduccion(rowData)} />
+                            {authData.permisos.includes(PERMISOS.EDIT) && (
+                                <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-m-2" onClick={() => editProduccion(rowData)} />
+                            )}
+                            {authData.permisos.includes(PERMISOS.DELETE) && (
+                                <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteProduccion(rowData)} />
+                            )}
                         </div>
                     )}></Column>
                 </DataTable>

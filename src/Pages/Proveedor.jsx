@@ -14,9 +14,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { AuthContext } from '../context/authContext';
 
 const PERMISOS = {
-    CREATE: 2,
-    EDIT: 3,
-    DELETE: 4
+    CREATE: 46,
+    EDIT: 47,
+    DELETE: 48
 };
 
 const Proveedores = () => {
@@ -144,7 +144,6 @@ const Proveedores = () => {
         return proveedores.filter(proveedor =>
             proveedor.nombre.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
             proveedor.apellido.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
-            proveedor.celular.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
             proveedor.empresa.toLowerCase().includes(filtroGlobal.toLowerCase())
         );
     };
@@ -158,13 +157,13 @@ const Proveedores = () => {
                 )}
                 <div className="p-field">
                     <label htmlFor="filtroGlobal" className="font-weight-bold">Buscar</label>
-                    <InputText id="filtroGlobal" value={filtroGlobal} onChange={onFiltroGlobalChange} className="form-control" />
+                    <InputText id="filtroGlobal" value={filtroGlobal} onChange={onFiltroGlobalChange} className="form-control mb-4" />
                 </div>
                 <DataTable value={filterGlobal(proveedores)} className="p-datatable-sm">
-                    <Column field="nombre" header="Nombre"></Column>
-                    <Column field="apellido" header="Apellido"></Column>
-                    <Column field="celular" header="Celular"></Column>
-                    <Column field="empresa" header="Empresa"></Column>
+                    <Column field="nombre" header="Nombre" sortable></Column>
+                    <Column field="apellido" header="Apellido" sortable></Column>
+                    <Column field="celular" header="Celular" sortable></Column>
+                    <Column field="empresa" header="Empresa" sortable></Column>
                     <Column body={(rowData) => (
                         <div className="p-d-flex p-jc-center">
                             <Button className="p-button-rounded p-button-outlined p-button-success p-button-sm p-m-2" onClick={() => verArticulos(rowData)} label="Articulos" />

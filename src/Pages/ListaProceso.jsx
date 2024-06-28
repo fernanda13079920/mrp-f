@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -12,8 +12,14 @@ import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeflex/primeflex.css';
-
+import { AuthContext } from '../context/authContext';
+const PERMISOS = {
+    CREATE: 22,
+    EDIT: 23,
+    DELETE: 24
+};
 const ListaProcesos = () => {
+    const { authData } = useContext(AuthContext);
     const [listaProcesos, setListaProcesos] = useState([]);
     const [selectedProceso, setSelectedProceso] = useState(null);
     const [deleteProcesoDialog, setDeleteProcesoDialog] = useState(false);
@@ -45,7 +51,7 @@ const ListaProcesos = () => {
             console.error("Error al obtener procesos:", error);
         }
     };
-    
+
 
     useEffect(() => {
         fetchProcesos();
@@ -111,23 +117,42 @@ const ListaProcesos = () => {
             <Button label="Eliminar" icon="pi pi-check" className="p-button-danger" onClick={deleteProceso} />
         </React.Fragment>
     );
+    const [filtroGlobal, setFiltroGlobal] = useState('');
 
+    const onFiltroGlobalChange = (e) => {
+        setFiltroGlobal(e.target.value);
+    };
+
+    const filterGlobal = (listaProcesos) => {
+        return listaProcesos.filter(listaProceso =>
+            listaProceso.producto.nombre.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
+            listaProceso.nombre.toLowerCase().includes(filtroGlobal.toLowerCase())
+        );
+    };
     return (
         <div className="container mt-4">
             <div className="card shadow p-4">
                 <h1 className="text-primary mb-4">Listado de Procesos</h1>
-
-                <Button label="Nuevo Proceso" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNewProcesoDialog} />
-
-                <DataTable value={listaProcesos} className="p-datatable-sm">
-                    <Column field="producto.nombre" header="Nombre del Producto"></Column>
-                    <Column field="proceso" header="Nombre del Proceso"></Column>
-                    <Column field="paso" header="Paso"></Column>
-                    <Column field="tiempo" header="Tiempo"></Column>
+                {authData.permisos.includes(PERMISOS.CREATE) && (
+                    <Button label="Nuevo Proceso" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNewProcesoDialog} />
+                )}
+                <div className="p-field">
+                    <label htmlFor="filtroGlobal" className="font-weight-bold">Buscar</label>
+                    <InputText id="filtroGlobal" value={filtroGlobal} onChange={onFiltroGlobalChange} className="form-control mb-4" />
+                </div>
+                <DataTable value={filterGlobal(listaProcesos)} className="p-datatable-sm">
+                    <Column field="producto.nombre" header="Nombre del Producto" sortable></Column>
+                    <Column field="nombre" header="Nombre del Proceso" sortable></Column>
+                    <Column field="paso" header="Paso" sortable></Column>
+                    <Column field="tiempo" header="Tiempo" sortable></Column>
                     <Column body={(rowData) => (
                         <div className="p-d-flex p-jc-center">
-                            <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editProceso(rowData)} />
-                            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteProceso(rowData)} />
+                            {authData.permisos.includes(PERMISOS.EDIT) && (
+                                <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editProceso(rowData)} />
+                            )}
+                            {authData.permisos.includes(PERMISOS.DELETE) && (
+                                <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteProceso(rowData)} />
+                            )}
                         </div>
                     )} style={{ textAlign: 'center', width: '15em' }} />
                 </DataTable>

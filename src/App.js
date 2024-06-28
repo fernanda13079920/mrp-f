@@ -1,6 +1,6 @@
-import React, { useState, createContext } from "react";
+import React, { useState, createContext, useEffect } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import { Light, Dark } from "./styles/Themes";
 import { AuthProvider } from './context/authContext';
@@ -20,6 +20,7 @@ import Proveedores from './Pages/Proveedor';
 import Perfil from './Pages/Perfil';
 import OrdenProduccion from "./Pages/OrdenProduccion";
 import OrdenCompra from "./Pages/OrdenCompra";
+import Ejecutivo from "./Pages/Ejecutivo";
 
 import axios from 'axios';
 
@@ -30,8 +31,33 @@ function App() {
   const themeStyle = theme === "light" ? Light : Dark;
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isAuthenticated, setAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(false); // Variable de estado para controlar la carga
+  const [loading, setLoading] = useState(true); // Variable de estado para controlar la carga
   const [error, setError] = useState(null); // Variable de estado para manejar errores
+
+  // Función para verificar la autenticación al cargar la aplicación
+  const checkAuthStatus = async () => {
+    setLoading(true); // Iniciar la carga
+    setError(null); // Limpiar errores anteriores
+
+    try {
+      const authData = JSON.parse(localStorage.getItem('authData'));
+      if (authData) {
+        // Realizar cualquier verificación adicional aquí si es necesario
+        setAuthenticated(true); // Marcar al usuario como autenticado
+      } else {
+        setAuthenticated(false); // Marcar al usuario como no autenticado si no hay datos de autenticación
+      }
+    } catch (err) {
+      console.error('Error checking authentication:', err);
+      setAuthenticated(false); // Marcar al usuario como no autenticado en caso de error
+    } finally {
+      setLoading(false); // Finalizar la carga, independientemente del resultado
+    }
+  };
+
+  useEffect(() => {
+    checkAuthStatus(); // Verificar la autenticación al cargar la aplicación
+  }, []);
 
   const handleLogout = async () => {
     setLoading(true); // Iniciar la carga
@@ -66,6 +92,12 @@ function App() {
     }
   };
 
+  // Mostrar el componente de carga mientras se verifica la autenticación
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // Mostrar la aplicación principal una vez que se ha determinado la autenticación
   return (
     <ThemeContext.Provider value={{ setTheme, theme, authenticated: isAuthenticated }}>
       <ThemeProvider theme={themeStyle}>
@@ -80,7 +112,7 @@ function App() {
                 />
                 <MainContent>
                   <Routes>
-                    <Route path="/" element={<Login />} />
+                    <Route path="/" element={<Navigate to="/perfil" />} /> {/* Redirigir a la página de perfil después del inicio de sesión */}
                     <Route path="/perfil" element={<Perfil />} />
                     <Route path="/rol" element={<Roles />} />
                     <Route path="/usuario" element={<Usuarios />} />
@@ -95,12 +127,12 @@ function App() {
                     <Route path="/proveedor" element={<Proveedores />} />
                     <Route path="/orden-produccion" element={<OrdenProduccion />} />
                     <Route path="/orden-compra" element={<OrdenCompra/>} />
-
+                    <Route path="/ejecutivo" element={<Ejecutivo />} />
                   </Routes>
                 </MainContent>
               </Container>
             ) : (
-              <Login setAuthenticated={setAuthenticated} />
+              <Login setAuthenticated={setAuthenticated} /> // Mostrar el componente de inicio de sesión si no está autenticado
             )}
           </AuthProvider>
         </BrowserRouter>

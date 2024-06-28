@@ -1,0 +1,247 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import * as XLSX from 'xlsx';
+import * as FileSaver from 'file-saver';
+import 'primeicons/primeicons.css';
+import 'primereact/resources/themes/saga-blue/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeflex/primeflex.css';
+
+const Ejecutivo = () => {
+    const [loading, setLoading] = useState(false);
+    const [productos, setProductos] = useState([]);
+    const [materiasPrimas, setMateriasPrimas] = useState([]);
+    const [rproductos, setRProductos] = useState([]);
+    const [rmateriasPrimas, setRMateriasPrimas] = useState([]);
+    const [crecienteProductos, setCrecienteProductos] = useState([]);
+    const [crecienteMateriasPrimas, setCrecienteMateriasPrimas] = useState([]);
+    const [minP, setMinP] = useState(0); // Valor mínimo de productos
+    const [minM, setMinM] = useState(0); // Valor mínimo de materias primas
+    const tipoId = 2; // Tipo de producto
+    const materiaId = 1; // Tipo de materia prima
+
+    useEffect(() => {
+        fetchProductos();
+        fetchMateriasPrimas();
+        fetchRProductos();
+        fetchRMateriasPrimas();
+        fetchProductosCrecientes();
+        fetchMateriasPrimasCrecientes();
+    }, []);
+
+    const fetchProductos = async () => {
+        try {
+            const response = await axios.get("http://3.147.242.40/api/articulo");
+            const allProductos = response.data.data;
+            const filteredProductos = allProductos.filter(producto => producto.tipo_id === tipoId);
+            setProductos(filteredProductos);
+        } catch (error) {
+            console.error("Error al obtener productos:", error);
+        }
+    };
+
+    const fetchMateriasPrimas = async () => {
+        try {
+            const response = await axios.get("http://3.147.242.40/api/articulo");
+            const allMateriasPrimas = response.data.data;
+            const filteredMateriasPrimas = allMateriasPrimas.filter(materia => materia.tipo_id === materiaId);
+            setMateriasPrimas(filteredMateriasPrimas);
+        } catch (error) {
+            console.error("Error al obtener materias primas:", error);
+        }
+    };
+
+    const fetchRProductos = async () => {
+        try {
+            const response = await axios.get("http://3.147.242.40/api/articulo");
+            const allProductos = response.data.data;
+            const filteredProductos = allProductos.filter(producto => producto.tipo_id === tipoId);
+            const filteredRProductos = filteredProductos.filter(producto => producto.cantidad < minP);
+            setRProductos(filteredRProductos);
+        } catch (error) {
+            console.error("Error al obtener productos:", error);
+        }
+    };
+
+    const fetchRMateriasPrimas = async () => {
+        try {
+            const response = await axios.get("http://3.147.242.40/api/articulo");
+            const allMateriasPrimas = response.data.data;
+            const filteredMateriasPrimas = allMateriasPrimas.filter(materia => materia.tipo_id === materiaId);
+            const filteredRMateriasPrimas = filteredMateriasPrimas.filter(materia => materia.cantidad < minM);
+            setRMateriasPrimas(filteredRMateriasPrimas);
+        } catch (error) {
+            console.error("Error al obtener materias primas:", error);
+        }
+    };
+
+    const fetchProductosCrecientes = async () => {
+        try {
+            const response = await axios.get("http://3.147.242.40/api/articulo");
+            const allProductos = response.data.data;
+            const fechaLimite = new Date();
+            fechaLimite.setDate(fechaLimite.getDate() - 7); // Productos creados hace una semana
+            const filteredCrecienteProductos = allProductos.filter(producto => new Date(producto.fecha_creacion) >= fechaLimite && producto.tipo_id === tipoId);
+            setCrecienteProductos(filteredCrecienteProductos);
+        } catch (error) {
+            console.error("Error al obtener productos creados recientemente:", error);
+        }
+    };
+
+    const fetchMateriasPrimasCrecientes = async () => {
+        try {
+            const response = await axios.get("http://3.147.242.40/api/articulo");
+            const allMateriasPrimas = response.data.data;
+            const fechaLimite = new Date();
+            fechaLimite.setDate(fechaLimite.getDate() - 7); // Materias primas creadas hace una semana
+            const filteredCrecienteMateriasPrimas = allMateriasPrimas.filter(materia => new Date(materia.fecha_creacion) >= fechaLimite && materia.tipo_id === materiaId);
+            setCrecienteMateriasPrimas(filteredCrecienteMateriasPrimas);
+        } catch (error) {
+            console.error("Error al obtener materias primas creadas recientemente:", error);
+        }
+    };
+
+    const fetchDataAndExport = async () => {
+        setLoading(true);
+
+        try {
+            // Esperar a que se carguen todos los datos necesarios antes de continuar
+            await Promise.all([fetchProductos(), fetchMateriasPrimas(), fetchRProductos(), fetchRMateriasPrimas(), fetchProductosCrecientes(), fetchMateriasPrimasCrecientes()]);
+
+            // Convertir los datos a formato compatible con XLSX para productos
+            const wsP = productos.map(item => ({
+                'Nombre': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Descripción': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
+                'Cantidad': { v: item.cantidad, s: { border: { bottom: { style: 'thin' } } } },
+                'Tipo': { v: item.tipo.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Serie': { v: item.serie, s: { border: { bottom: { style: 'thin' } } } },
+                'Materiales': { v: item.materiales.map(mat => mat.nombre).join(', '), s: { border: { bottom: { style: 'thin' } } } },
+            }));
+
+            // Convertir los datos a formato compatible con XLSX para materias primas
+            const wsM = materiasPrimas.map(item => ({
+                'Nombre': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Descripción': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
+                'Cantidad': { v: item.cantidad, s: { border: { bottom: { style: 'thin' } } } },
+                'Tipo': { v: item.tipo.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Serie': { v: item.serie, s: { border: { bottom: { style: 'thin' } } } },
+            }));
+
+            // Convertir los datos a formato compatible con XLSX para productos restringidos
+            const wsRP = rproductos.map(item => ({
+                'Nombre': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Descripción': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
+                'Cantidad': { v: item.cantidad, s: { border: { bottom: { style: 'thin' } } } },
+                'Tipo': { v: item.tipo.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Serie': { v: item.serie, s: { border: { bottom: { style: 'thin' } } } },
+                'Materiales': { v: item.materiales.map(mat => mat.nombre).join(', '), s: { border: { bottom: { style: 'thin' } } } },
+            }));
+
+            // Convertir los datos a formato compatible con XLSX para materias primas restringidas
+            const wsRM = rmateriasPrimas.map(item => ({
+                'Nombre': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Descripción': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
+                'Cantidad': { v: item.cantidad, s: { border: { bottom: { style: 'thin' } } } },
+                'Tipo': { v: item.tipo.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Serie': { v: item.serie, s: { border: { bottom: { style: 'thin' } } } },
+            }));
+
+            // Convertir los datos a formato compatible con XLSX para productos creados recientemente
+            const wsCP = crecienteProductos.map(item => ({
+                'Nombre': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Descripción': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
+                'Cantidad': { v: item.cantidad, s: { border: { bottom: { style: 'thin' } } } },
+                'Tipo': { v: item.tipo.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Serie': { v: item.serie, s: { border: { bottom: { style: 'thin' } } } },
+                'Materiales': { v: item.materiales.map(mat => mat.nombre).join(', '), s: { border: { bottom: { style: 'thin' } } } },
+            }));
+
+            // Convertir los datos a formato compatible con XLSX para materias primas creadas recientemente
+            const wsCM = crecienteMateriasPrimas.map(item => ({
+                'Nombre': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Descripción': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
+                'Cantidad': { v: item.cantidad, s: { border: { bottom: { style: 'thin' } } } },
+                'Tipo': { v: item.tipo.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Serie': { v: item.serie, s: { border: { bottom: { style: 'thin' } } } },
+            }));
+
+            // Crear el libro de Excel y las hojas de datos
+            const wb = XLSX.utils.book_new();
+            const wsProductos = XLSX.utils.json_to_sheet(wsP, { headerStyles: { font: { bold: true } } });
+            const wsMateriasPrimas = XLSX.utils.json_to_sheet(wsM, { headerStyles: { font: { bold: true } } });
+            const wsReP = XLSX.utils.json_to_sheet(wsRP, { headerStyles: { font: { bold: true } } });
+            const wsReM = XLSX.utils.json_to_sheet(wsRM, { headerStyles: { font: { bold: true } } });
+            const wsCProd = XLSX.utils.json_to_sheet(wsCP, { headerStyles: { font: { bold: true } } });
+            const wsCMat = XLSX.utils.json_to_sheet(wsCM, { headerStyles: { font: { bold: true } } });
+
+            // Aplicar bordes a todas las celdas en ambas hojas de datos
+            applyBorders(wsProductos, productos.length + 1);
+            applyBorders(wsMateriasPrimas, materiasPrimas.length + 1);
+            applyBorders(wsReP, rproductos.length + 1);
+            applyBorders(wsReM, rmateriasPrimas.length + 1);
+            applyBorders(wsCProd, crecienteProductos.length + 1);
+            applyBorders(wsCMat, crecienteMateriasPrimas.length + 1);
+
+            // Añadir las hojas al libro de Excel
+            XLSX.utils.book_append_sheet(wb, wsProductos, 'Productos');
+            XLSX.utils.book_append_sheet(wb, wsMateriasPrimas, 'Materias Primas');
+            XLSX.utils.book_append_sheet(wb, wsReP, 'Re-Producto');
+            XLSX.utils.book_append_sheet(wb, wsReM, 'Re-Materia Prima');
+            XLSX.utils.book_append_sheet(wb, wsCProd, 'Cre-Producto');
+            XLSX.utils.book_append_sheet(wb, wsCMat, 'Cre-Materia Prima');
+
+            // Generar el archivo Excel y descargarlo
+            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+            FileSaver.saveAs(blob, `Inventario Actual ${new Date().toLocaleDateString()}.xlsx`);
+        } catch (error) {
+            console.error('Error al obtener datos de la API:', error);
+        }
+
+        setLoading(false);
+    };
+
+    const applyBorders = (worksheet, rowCount) => {
+        const range = XLSX.utils.decode_range(worksheet['!ref']);
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const cellAddress = { c: C, r: R };
+                const cellRef = XLSX.utils.encode_cell(cellAddress);
+                if (!worksheet[cellRef]) continue;
+
+                // Aplicar estilo de borde delgado a todas las celdas
+                worksheet[cellRef].s = {
+                    border: {
+                        bottom: { style: 'thin' },
+                        top: { style: 'thin' },
+                        left: { style: 'thin' },
+                        right: { style: 'thin' }
+                    }
+                };
+
+                // Aplicar fuente en negrita a la fila de encabezado
+                if (R === 0) {
+                    worksheet[cellRef].s.font = { bold: true };
+                }
+            }
+        }
+    };
+
+    return (
+        <div>
+            <label>
+                Valor mínimo de productos:
+                <input type="number" value={minP} onChange={(e) => setMinP(Number(e.target.value))} />
+            </label>
+            <label>
+                Valor mínimo de materias primas:
+                <input type="number" value={minM} onChange={(e) => setMinM(Number(e.target.value))} />
+            </label>
+            <button onClick={fetchDataAndExport} disabled={loading}>
+                {loading ? 'Exportando...' : 'Exportar a Excel'}
+            </button>
+        </div>
+    );
+};
+
+export default Ejecutivo;

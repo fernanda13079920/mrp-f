@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -9,8 +9,14 @@ import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/saga-blue/theme.css'; // Tema de PrimeReact
 import 'primereact/resources/primereact.min.css'; // Estilos base de PrimeReact
 import 'primeflex/primeflex.css'; // Estilos de PrimeFlex para alineación y disposición
-
+import { AuthContext } from '../context/authContext';
+const PERMISOS = {
+    CREATE: 26,
+    EDIT: 27,
+    DELETE: 28
+};
 const TipoUbicaciones = () => {
+    const { authData } = useContext(AuthContext);
     const [tipoUbicaciones, setTipoUbicaciones] = useState([]);
     const [tipoUbicacion, setTipoUbicacion] = useState(null);
     const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
@@ -55,7 +61,7 @@ const TipoUbicaciones = () => {
     const saveTipoUbicacion = async () => {
         setSubmitted(true);
 
-        if ( tipoUbicacion.nombre && tipoUbicacion.nombre.trim()) {
+        if (tipoUbicacion.nombre && tipoUbicacion.nombre.trim()) {
             try {
                 if (tipoUbicacion.id) {
                     await axios.put(`http://3.147.242.40/api/tipo-ubicacion/${tipoUbicacion.id}`, tipoUbicacion);
@@ -102,20 +108,39 @@ const TipoUbicaciones = () => {
             <Button label="Eliminar" icon="pi pi-check" className="p-button-danger" onClick={deleteTipoUbicacion} />
         </React.Fragment>
     );
+    const [filtroGlobal, setFiltroGlobal] = useState('');
 
+    const onFiltroGlobalChange = (e) => {
+        setFiltroGlobal(e.target.value);
+    };
+
+    const filterGlobal = (tipoUbicaciones) => {
+        return tipoUbicaciones.filter(tipoUbicacion =>
+            tipoUbicacion.nombre.toLowerCase().includes(filtroGlobal.toLowerCase())
+        );
+    };
     // Renderizar el componente
     return (
         <div className="container mt-4">
             <div className="card shadow p-4">
                 <h1 className="text-primary mb-4">Listado de Tipos de Ubicación</h1>
-                <Button label="Nuevo Tipo de Ubicación" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
-
-                <DataTable value={tipoUbicaciones} className="p-datatable-sm">
-                    <Column field="nombre" header="Nombre"></Column>
+                {authData.permisos.includes(PERMISOS.CREATE) && (
+                    <Button label="Nuevo Tipo de Ubicación" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
+                )}
+                <div className="p-field">
+                    <label htmlFor="filtroGlobal" className="font-weight-bold">Buscar</label>
+                    <InputText id="filtroGlobal" value={filtroGlobal} onChange={onFiltroGlobalChange} className="form-control mb-4" />
+                </div>
+                <DataTable value={filterGlobal(tipoUbicaciones)} className="p-datatable-sm">
+                    <Column field="nombre" header="Nombre" sortable></Column>
                     <Column body={(rowData) => (
                         <div className="p-d-flex p-jc-center">
-                            <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editTipoUbicacion(rowData)} />
-                            <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteTipoUbicacion(rowData)} />
+                            {authData.permisos.includes(PERMISOS.EDIT) && (
+                                <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-mr-2" onClick={() => editTipoUbicacion(rowData)} />
+                            )}
+                            {authData.permisos.includes(PERMISOS.DELETE) && (
+                                <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteTipoUbicacion(rowData)} />
+                            )}
                         </div>
                     )} style={{ textAlign: 'center', width: '8em' }} />
                 </DataTable>
