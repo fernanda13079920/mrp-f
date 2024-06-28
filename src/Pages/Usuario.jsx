@@ -104,15 +104,34 @@ const Usuarios = () => {
     const saveUsuario = async () => {
         setSubmitted(true);
 
-        if (usuario.username && usuario.password && usuario.persona.nombre && usuario.persona.apellido_p && usuario.persona.apellido_m && usuario.persona.correo && usuario.persona.nacimiento && usuario.persona.imagen && usuario.persona.celular && usuario.rol.id && usuario.photo) {
+        if (usuario.username && (usuario.id || usuario.password) && usuario.persona.nombre && usuario.persona.apellido_p && usuario.persona.apellido_m && usuario.persona.correo && usuario.persona.nacimiento && usuario.persona.celular && usuario.rol.id) {
             try {
-                const payload = {
-                };
+                const formData = new FormData();
+                formData.append('photo', usuario.photo);
+                formData.append('nombre', usuario.persona.nombre);
+                formData.append('apellido_p', usuario.persona.apellido_p);
+                formData.append('apellido_m', usuario.persona.apellido_m);
+                formData.append('correo', usuario.persona.correo);
+                formData.append('nacimiento', usuario.persona.nacimiento);
+                formData.append('celular', usuario.persona.celular);
+                formData.append('rol_id', usuario.rol.id);
+                formData.append('username', usuario.username);
+                if (!usuario.id) {
+                    formData.append('password', usuario.password);
+                }
 
                 if (usuario.id) {
-                    await axios.put(`http://3.147.242.40/api/usuario/${usuario.id}`, payload);
+                    await axios.put(`http://3.147.242.40/api/usuario/${usuario.id}`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
                 } else {
-                    await axios.post(`http://3.147.242.40/api/usuario`, payload);
+                    await axios.post(`http://3.147.242.40/api/usuario`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
                 }
 
                 setUsuarioDialog(false);
@@ -126,7 +145,7 @@ const Usuarios = () => {
                     photo: '.'
                 });
             } catch (error) {
-                console.error("Error saving usuario:", error);
+                console.error("Error saving usuario:", error.response ? error.response.data : error.message);
             }
         }
     };
@@ -178,6 +197,7 @@ const Usuarios = () => {
             <Button label="Eliminar" icon="pi pi-check" className="p-button-danger" onClick={deleteUsuario} />
         </React.Fragment>
     );
+
     const [filtroGlobal, setFiltroGlobal] = useState('');
 
     const onFiltroGlobalChange = (e) => {
@@ -191,6 +211,7 @@ const Usuarios = () => {
             usuario.rol.nombre.toLowerCase().includes(filtroGlobal.toLowerCase())
         );
     };
+
     return (
         <div className="container mt-4">
             <div className="card shadow p-4">
@@ -211,84 +232,80 @@ const Usuarios = () => {
                         <div className="p-d-flex p-jc-center">
                             <Button label="Ver Detalles" icon="pi pi-eye" className="p-button-rounded p-button-outlined p-button-success p-button-sm p-m-2" onClick={() => viewUsuario(rowData)} />
                             {authData.permisos.includes(PERMISOS.EDIT) && (
-                                <Button icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-primary p-button-sm p-m-2" onClick={() => editUsuario(rowData)} />
+                                <Button label="Editar" icon="pi pi-pencil" className="p-button-rounded p-button-outlined p-button-info p-button-sm p-m-2" onClick={() => editUsuario(rowData)} />
                             )}
                             {authData.permisos.includes(PERMISOS.DELETE) && (
-                                <Button icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm" onClick={() => confirmDeleteUsuario(rowData)} />
+                                <Button label="Eliminar" icon="pi pi-trash" className="p-button-rounded p-button-outlined p-button-danger p-button-sm p-m-2" onClick={() => confirmDeleteUsuario(rowData)} />
                             )}
                         </div>
-                    )} style={{ textAlign: 'center', width: '12em' }} />
+                    )} />
                 </DataTable>
 
-                <Dialog visible={usuarioDialog} style={{ width: '40rem', overflowY: 'auto', paddingBottom: '0' }} header={`${usuario && usuario.id ? (viewMode ? 'Ver' : 'Editar') : 'Nuevo'} Usuario`} modal className="p-fluid" onHide={hideDialog}>
+                <Dialog visible={usuarioDialog} style={{ width: '450px' }} header="Usuario" modal className="p-fluid" footer={(
+                    <React.Fragment>
+                        <Button label="Cancelar" icon="pi pi-times" className="p-button-outlined p-button-secondary" onClick={hideDialog} />
+                        {!viewMode && (
+                            <Button label="Guardar" icon="pi pi-check" className="p-button-primary" onClick={saveUsuario} />
+                        )}
+                    </React.Fragment>
+                )} onHide={hideDialog}>
                     <div className="p-field">
-                        <label htmlFor="username" className="font-weight-bold">Username</label>
-                        <InputText id="username" value={usuario?.username || ''} onChange={(e) => onInputChange(e, 'username')} required autoFocus className="form-control" disabled={viewMode} />
-                        {submitted && !usuario?.username && <small className="p-error">El username es requerido.</small>}
+                        <label htmlFor="username">Nombre de Usuario</label>
+                        <InputText id="username" value={usuario.username} onChange={(e) => onInputChange(e, 'username')} required autoFocus className={submitted && !usuario.username ? 'p-invalid' : ''} />
+                        {submitted && !usuario.username && <small className="p-error">El nombre de usuario es obligatorio.</small>}
                     </div>
-                    {!viewMode && !usuario.id && (
+                    {!usuario.id && (
                         <div className="p-field">
-                            <label htmlFor="password" className="font-weight-bold">Password</label>
-                            <InputText id="password" type="password" value={usuario?.password || ''} onChange={(e) => onInputChange(e, 'password')} required className="form-control" />
-                            {submitted && !usuario?.password && <small className="p-error">La contraseña es requerida.</small>}
+                            <label htmlFor="password">Contraseña</label>
+                            <InputText id="password" type="password" value={usuario.password} onChange={(e) => onInputChange(e, 'password')} required className={submitted && !usuario.password ? 'p-invalid' : ''} />
+                            {submitted && !usuario.password && <small className="p-error">La contraseña es obligatoria.</small>}
                         </div>
                     )}
                     <div className="p-field">
-                        <label htmlFor="nombre" className="font-weight-bold">Nombre</label>
-                        <InputText id="nombre" value={usuario?.persona.nombre || ''} onChange={(e) => onPersonaChange(e, 'nombre')} required autoFocus className="form-control" disabled={viewMode} />
-                        {submitted && !usuario?.persona.nombre && <small className="p-error">El nombre es requerido.</small>}
+                        <label htmlFor="nombre">Nombre</label>
+                        <InputText id="nombre" value={usuario.persona.nombre} onChange={(e) => onPersonaChange(e, 'nombre')} required className={submitted && !usuario.persona.nombre ? 'p-invalid' : ''} />
+                        {submitted && !usuario.persona.nombre && <small className="p-error">El nombre es obligatorio.</small>}
                     </div>
                     <div className="p-field">
-                        <label htmlFor="apellido_p" className="font-weight-bold">Apellido Paterno</label>
-                        <InputText id="apellido_p" value={usuario?.persona.apellido_p || ''} onChange={(e) => onPersonaChange(e, 'apellido_p')} required autoFocus className="form-control" disabled={viewMode} />
-                        {submitted && !usuario?.persona.apellido_p && <small className="p-error">El apellido paterno es requerido.</small>}
+                        <label htmlFor="apellido_p">Apellido Paterno</label>
+                        <InputText id="apellido_p" value={usuario.persona.apellido_p} onChange={(e) => onPersonaChange(e, 'apellido_p')} required className={submitted && !usuario.persona.apellido_p ? 'p-invalid' : ''} />
+                        {submitted && !usuario.persona.apellido_p && <small className="p-error">El apellido paterno es obligatorio.</small>}
                     </div>
                     <div className="p-field">
-                        <label htmlFor="apellido_m" className="font-weight-bold">Apellido Materno</label>
-                        <InputText id="apellido_m" value={usuario?.persona.apellido_m || ''} onChange={(e) => onPersonaChange(e, 'apellido_m')} required autoFocus className="form-control" disabled={viewMode} />
-                        {submitted && !usuario?.persona.apellido_m && <small className="p-error">El apellido materno es requerido.</small>}
+                        <label htmlFor="apellido_m">Apellido Materno</label>
+                        <InputText id="apellido_m" value={usuario.persona.apellido_m} onChange={(e) => onPersonaChange(e, 'apellido_m')} required className={submitted && !usuario.persona.apellido_m ? 'p-invalid' : ''} />
+                        {submitted && !usuario.persona.apellido_m && <small className="p-error">El apellido materno es obligatorio.</small>}
                     </div>
                     <div className="p-field">
-                        <label htmlFor="correo" className="font-weight-bold">Correo</label>
-                        <InputText id="correo" value={usuario?.persona.correo || ''} onChange={(e) => onPersonaChange(e, 'correo')} required autoFocus className="form-control" disabled={viewMode} />
-                        {submitted && !usuario?.persona.correo && <small className="p-error">El correo es requerido.</small>}
+                        <label htmlFor="correo">Correo</label>
+                        <InputText id="correo" value={usuario.persona.correo} onChange={(e) => onPersonaChange(e, 'correo')} required className={submitted && !usuario.persona.correo ? 'p-invalid' : ''} />
+                        {submitted && !usuario.persona.correo && <small className="p-error">El correo es obligatorio.</small>}
                     </div>
                     <div className="p-field">
-                        <label htmlFor="nacimiento" className="font-weight-bold">Fecha de Nacimiento</label>
-                        <InputText id="nacimiento" value={usuario?.persona.nacimiento || ''} onChange={(e) => onPersonaChange(e, 'nacimiento')} required autoFocus className="form-control" disabled={viewMode} />
-                        {submitted && !usuario?.persona.nacimiento && <small className="p-error">La fecha de nacimiento es requerida.</small>}
+                        <label htmlFor="nacimiento">Fecha de Nacimiento</label>
+                        <InputText id="nacimiento" type="date" value={usuario.persona.nacimiento} onChange={(e) => onPersonaChange(e, 'nacimiento')} required className={submitted && !usuario.persona.nacimiento ? 'p-invalid' : ''} />
+                        {submitted && !usuario.persona.nacimiento && <small className="p-error">La fecha de nacimiento es obligatoria.</small>}
                     </div>
                     <div className="p-field">
-                        <label htmlFor="celular" className="font-weight-bold">Celular</label>
-                        <InputText id="celular" value={usuario?.persona.celular || ''} onChange={(e) => onPersonaChange(e, 'celular')} required autoFocus className="form-control" disabled={viewMode} />
-                        {submitted && !usuario?.persona.celular && <small className="p-error">El celular es requerido.</small>}
+                        <label htmlFor="celular">Celular</label>
+                        <InputText id="celular" value={usuario.persona.celular} onChange={(e) => onPersonaChange(e, 'celular')} required className={submitted && !usuario.persona.celular ? 'p-invalid' : ''} />
+                        {submitted && !usuario.persona.celular && <small className="p-error">El celular es obligatorio.</small>}
                     </div>
                     <div className="p-field">
-                        <label htmlFor="rol" className="font-weight-bold">Rol</label>
-                        <MultiSelect
-                            id="rol"
-                            value={usuario?.rol.id ? [usuario.rol.id] : []}
-                            options={roles}
-                            onChange={onRoleChange}
-                            optionLabel="label"
-                            placeholder="Seleccione rol"
-                            className="form-control"
-                            display="chip"
-                            disabled={viewMode}
-                        />
-                        {submitted && !usuario?.rol.id && <small className="p-error">Debe seleccionar un rol.</small>}
+                        <label htmlFor="rol">Rol</label>
+                        <MultiSelect id="rol" value={usuario.rol.id ? [usuario.rol.id] : []} options={roles} onChange={onRoleChange} placeholder="Seleccionar Rol" required className={submitted && !usuario.rol.id ? 'p-invalid' : ''} disabled={viewMode} />
+                        {submitted && !usuario.rol.id && <small className="p-error">Rol es requerido.</small>}
                     </div>
-                    {!viewMode && (
-                        <div className="p-d-flex p-jc-end mt-5">
-                            <Button label="Cancelar" icon="pi pi-times" className="p-button-danger p-ml-2" onClick={hideDialog} />
-                            <Button label="Guardar" icon="pi pi-check" className="p-button-success p-ml-2" onClick={saveUsuario} />
-                        </div>
-                    )}
+                    <div className="p-field">
+                        <label htmlFor="photo">Foto</label>
+                        <InputText id="photo" type="file" onChange={(e) => setUsuario({ ...usuario, photo: e.target.files[0] })} />
+                    </div>
                 </Dialog>
+
                 <Dialog visible={deleteUsuarioDialog} style={{ width: '450px' }} header="Confirmar" modal footer={deleteUsuarioDialogFooter} onHide={() => setDeleteUsuarioDialog(false)}>
                     <div className="confirmation-content">
-                        <i className="pi pi-exclamation-triangle p-mr-3" style={{ fontSize: '2rem' }} />
-                        {usuario && <span>¿Estás seguro de que deseas eliminar <b>{usuario.persona.nombre} {usuario.persona.apellido_p}</b>?</span>}
+                        <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
+                        {usuario && <span>¿Está seguro de que desea eliminar <b>{usuario.persona.nombre}</b>?</span>}
                     </div>
                 </Dialog>
             </div>
