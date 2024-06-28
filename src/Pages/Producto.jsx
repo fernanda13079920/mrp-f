@@ -116,7 +116,7 @@ const Productos = () => {
 
     // Función para abrir el formulario de nuevo producto
     const openNew = () => {
-        setProducto({ id: null, tipo_id: '', nombre: '', descripcion: '', fecha_creacion: null, fecha_vencimiento: null, serie: '', materiales: [] });
+        setProducto({ id: null, tipo_id: '2', nombre: '', descripcion: '', fecha_creacion: null, fecha_vencimiento: null, serie: '', materiales: [] });
         setProductDialog(true);
     };
 
@@ -151,7 +151,7 @@ const Productos = () => {
         const copia = { ...producto, materiales: formattedMaterials };
         copia['imagen'] = '/ruta/imagen';
 
-        if (producto.tipo_id && producto.nombre && producto.descripcion && producto.fecha_creacion && producto.fecha_vencimiento && producto.materiales.length && producto.serie.trim()) {
+        if ( producto.nombre && producto.descripcion && producto.fecha_creacion && producto.fecha_vencimiento && producto.materiales.length && producto.serie.trim()) {
             try {
                 if (producto.id) {
                     await axios.put(`http://3.147.242.40/api/articulo/${producto.id}`, copia);
@@ -263,19 +263,8 @@ const Productos = () => {
                 </DataTable>
 
                 {/* Dialog para editar o crear un producto */}
-                <Dialog visible={productDialog} style={{ width: '40rem', overflowY: 'auto', paddingBottom: '0' }} header={`${producto ? 'Editar' : 'Nuevo'} Producto`} modal className="p-fluid" onHide={hideDialog}>
-                    <div className="p-field">
-                        <label htmlFor="tipo-articulo" className="font-weight-bold">Tipo</label>                        <Dropdown
-                            id="tipo-articulo"
-                            value={producto?.tipo_id || null}
-                            options={tipoArticulos.map(tipo => ({ label: tipo.nombre, value: tipo.id }))}
-                            onChange={(e) => onInputChange(e, 'tipo_id')}
-                            optionLabel="label"
-                            placeholder="Seleccione un tipo"
-                            className="p-inputtext"
-                        />
-                        {submitted && !producto?.tipo_id && <small className="p-error">El tipo es requerido.</small>}
-                    </div>
+                <Dialog visible={productDialog} style={{ width: '40rem', overflowY: 'auto', paddingBottom: '0' }} header={`${producto && producto.id? 'Editar' : 'Nuevo'} Producto`} modal className="p-fluid" onHide={hideDialog}>
+                    
 
                     <div className="p-field">
                         <label htmlFor="nombre" className="font-weight-bold">Nombre</label>

@@ -70,7 +70,7 @@ const MateriasPrimas = () => {
 
     // Abrir el diálogo para agregar/editar tipo de producto
     const openNew = () => {
-        setProducto({ id: null, tipo: '', nombre: '', descripcion: '', fecha_creacion: '', fecha_vencimiento: '', serie: '', cantidad: null, imagen: null });
+        setProducto({ id: null, tipo: '1', nombre: '', descripcion: '', fecha_creacion: '', fecha_vencimiento: '', serie: '', cantidad: null, imagen: null });
         setProductDialog(true);
     };
 
@@ -93,7 +93,7 @@ const MateriasPrimas = () => {
 
         // console.log(producto);
 
-        if (producto.tipo_id && producto.nombre && producto.descripcion && producto.fecha_creacion && producto.fecha_vencimiento && producto.serie && producto.serie.trim()) {
+        if ( producto.nombre && producto.descripcion && producto.fecha_creacion && producto.fecha_vencimiento && producto.serie && producto.serie.trim()) {
             try {
                 if (producto.id) {
                     await axios.put(`http://3.147.242.40/api/articulo/${producto.id}`, producto);
@@ -195,19 +195,8 @@ const MateriasPrimas = () => {
                     )} style={{ textAlign: 'center', width: '8em' }} />
                 </DataTable>
 
-                <Dialog visible={productDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`${producto ? 'Editar' : 'Nuevo'} Producto`} modal className="p-fluid" onHide={hideDialog}>
-                    <div className="p-field">
-                        <label htmlFor="tipo-articulo" className="font-weight-bold">Tipo</label>                        <Dropdown
-                            id="tipo-articulo"
-                            value={producto?.tipo_id || null}
-                            options={tipoArticulos.map(tipo => ({ label: tipo.nombre, value: tipo.id }))}
-                            onChange={(e) => onInputChange(e, 'tipo_id')}
-                            optionLabel="label"
-                            placeholder="Seleccione un tipo"
-                            className="p-inputtext"
-                        />
-                        {submitted && !producto?.tipo_id && <small className="p-error">El tipo es requerido.</small>}
-                    </div>
+                <Dialog visible={productDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`${producto && producto.id? 'Editar' : 'Nuevo'} Producto`} modal className="p-fluid" onHide={hideDialog}>
+                    
                     <div className="p-field">
                         <label htmlFor="nombre" className="font-weight-bold">Nombre</label>
                         <InputText id="nombre" value={producto?.nombre || ''} onChange={(e) => onInputChange(e, 'nombre')} required autoFocus className="form-control" />

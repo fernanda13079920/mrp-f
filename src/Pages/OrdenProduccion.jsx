@@ -301,7 +301,7 @@ const Produccion = () => {
                 )} onHide={hideDeleteDialog}>
                     <div className="confirmation-content">
                         <i className="pi pi-exclamation-triangle" style={{ fontSize: '2rem' }}></i>
-                        {produccion && <span>¿Estás seguro de que quieres eliminar <b>{produccion.id}</b>?</span>}
+                        {produccion && <span>¿Estás seguro de que quieres eliminar?</span>}
                     </div>
                 </Dialog>
             </div>
