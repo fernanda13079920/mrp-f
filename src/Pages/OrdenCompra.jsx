@@ -294,7 +294,6 @@ const Compra = () => {
                         )}
                     </div>
 
-                    {/* Renderizar la cantidad de cada material */}
                     {compra?.productos.map(producto => {
                         const productName = productos.find(p => p.id === producto.id)?.nombre || 'Desconocido';
                         return (

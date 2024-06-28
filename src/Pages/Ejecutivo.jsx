@@ -124,7 +124,6 @@ const Ejecutivo = () => {
         try {
             await fetchData();
 
-            // Convertir los datos a formato compatible con XLSX para productos
             const wsP = productos.map(item => ({
                 'Nombre': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
                 'Descripción': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
@@ -134,7 +133,6 @@ const Ejecutivo = () => {
                 'Materiales': { v: item.materiales.map(mat => mat.nombre).join(', '), s: { border: { bottom: { style: 'thin' } } } },
             }));
 
-            // Convertir los datos a formato compatible con XLSX para materias primas
             const wsM = materiasPrimas.map(item => ({
                 'Nombre': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
                 'Descripción': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
@@ -143,7 +141,6 @@ const Ejecutivo = () => {
                 'Serie': { v: item.serie, s: { border: { bottom: { style: 'thin' } } } },
             }));
 
-            // Convertir los datos a formato compatible con XLSX para productos restringidos
             const wsRP = rproductos.map(item => ({
                 'Nombre': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
                 'Descripción': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
@@ -153,7 +150,6 @@ const Ejecutivo = () => {
                 'Materiales': { v: item.materiales.map(mat => mat.nombre).join(', '), s: { border: { bottom: { style: 'thin' } } } },
             }));
 
-            // Convertir los datos a formato compatible con XLSX para materias primas restringidas
             const wsRM = rmateriasPrimas.map(item => ({
                 'Nombre': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
                 'Descripción': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
@@ -162,7 +158,6 @@ const Ejecutivo = () => {
                 'Serie': { v: item.serie, s: { border: { bottom: { style: 'thin' } } } },
             }));
 
-            // Convertir los datos a formato compatible con XLSX para productos creados recientemente
             const wsCP = crecienteProductos.map(item => ({
                 'Nombre': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
                 'Descripción': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
@@ -172,7 +167,6 @@ const Ejecutivo = () => {
                 'Materiales': { v: item.materiales.map(mat => mat.nombre).join(', '), s: { border: { bottom: { style: 'thin' } } } },
             }));
 
-            // Convertir los datos a formato compatible con XLSX para materias primas creadas recientemente
             const wsCM = crecienteMateriasPrimas.map(item => ({
                 'Nombre': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
                 'Descripción': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
@@ -181,7 +175,6 @@ const Ejecutivo = () => {
                 'Serie': { v: item.serie, s: { border: { bottom: { style: 'thin' } } } },
             }));
 
-            // Crear el libro de Excel y las hojas de datos
             const wb = XLSX.utils.book_new();
             const wsProductos = XLSX.utils.json_to_sheet(wsP, { headerStyles: { font: { bold: true } } });
             const wsMateriasPrimas = XLSX.utils.json_to_sheet(wsM, { headerStyles: { font: { bold: true } } });
@@ -190,7 +183,6 @@ const Ejecutivo = () => {
             const wsCProd = XLSX.utils.json_to_sheet(wsCP, { headerStyles: { font: { bold: true } } });
             const wsCMat = XLSX.utils.json_to_sheet(wsCM, { headerStyles: { font: { bold: true } } });
 
-            // Aplicar bordes a todas las celdas en ambas hojas de datos
             applyBorders(wsProductos, productos.length + 1);
             applyBorders(wsMateriasPrimas, materiasPrimas.length + 1);
             applyBorders(wsReP, rproductos.length + 1);
@@ -198,7 +190,6 @@ const Ejecutivo = () => {
             applyBorders(wsCProd, crecienteProductos.length + 1);
             applyBorders(wsCMat, crecienteMateriasPrimas.length + 1);
 
-            // Añadir las hojas al libro de Excel
             XLSX.utils.book_append_sheet(wb, wsProductos, 'Productos');
             XLSX.utils.book_append_sheet(wb, wsMateriasPrimas, 'Materias Primas');
             XLSX.utils.book_append_sheet(wb, wsReP, 'Re-Producto');
@@ -206,7 +197,6 @@ const Ejecutivo = () => {
             XLSX.utils.book_append_sheet(wb, wsCProd, 'Cre-Producto');
             XLSX.utils.book_append_sheet(wb, wsCMat, 'Cre-Materia Prima');
 
-            // Generar el archivo Excel y descargarlo
             const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
             const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
             FileSaver.saveAs(blob, `Inventario Actual ${new Date().toLocaleDateString()}.xlsx`);
@@ -223,22 +213,17 @@ const Ejecutivo = () => {
         try {
             await fetchData();
 
-            // Convertir los datos a formato compatible con XLSX para productos
             const wsPr = producciones.map(item => ({
                 'Usuario Generador': { v: item.usuario_generado.username, s: { border: { bottom: { style: 'thin' } } } },
                 }));
 
-            // Crear el libro de Excel y las hojas de datos
             const wb = XLSX.utils.book_new();
             const wsProducciones = XLSX.utils.json_to_sheet(wsPr, { headerStyles: { font: { bold: true } } });
             
-            // Aplicar bordes a todas las celdas en ambas hojas de datos
             applyBorders(wsProducciones, producciones.length + 1);
 
-            // Añadir las hojas al libro de Excel
             XLSX.utils.book_append_sheet(wb, wsProducciones, 'Producciones');
 
-            // Generar el archivo Excel y descargarlo
             const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
             const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
             FileSaver.saveAs(blob, `Orden de Produccion ${new Date().toLocaleDateString()}.xlsx`);
@@ -257,7 +242,6 @@ const Ejecutivo = () => {
                 const cellRef = XLSX.utils.encode_cell(cellAddress);
                 if (!worksheet[cellRef]) continue;
 
-                // Aplicar estilo de borde delgado a todas las celdas
                 worksheet[cellRef].s = {
                     border: {
                         bottom: { style: 'thin' },
@@ -267,7 +251,6 @@ const Ejecutivo = () => {
                     }
                 };
 
-                // Aplicar fuente en negrita a la fila de encabezado
                 if (R === 0) {
                     worksheet[cellRef].s.font = { bold: true };
                 }
@@ -290,19 +273,8 @@ const Ejecutivo = () => {
                     />
                   </div>
             </div>
-            <div className="card shadow p-4">
-                <h1 className="text-primary mb-4">Reporte de Ordenes</h1>
+         
             
-            <div className="d-flex justify-content-center mt-3">
-                    <Button
-                      label={loading ? 'Exportando...' : 'Exportar a Excel'}
-                      type="submit"
-                      className="p-button-success"
-                      disabled={loading}
-                      onClick={fetchOrden}
-                    />
-                  </div>
-            </div>
         </div>
         
     );

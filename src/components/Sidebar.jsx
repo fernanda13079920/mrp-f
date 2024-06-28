@@ -258,10 +258,6 @@ const linksArray = [
         label: "Reporte Ejecutivo",
         to: "/ejecutivo",
       },
-      {
-        label: "Reporte Analitico",
-        to: "/analitico",
-      },
     ],
   },
 ];

@@ -44,7 +44,6 @@ const ListaProcesos = () => {
         try {
             const response = await axios.get("http://3.147.242.40/api/procesos");
             const allProcesos = response.data.data;
-            // Filtrar procesos por ID
             const filteredProcesos = allProcesos.filter(proceso => proceso.id === selectedProceso?.proceso_id);
             setProcesos(filteredProcesos);
         } catch (error) {
