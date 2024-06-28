@@ -45,7 +45,6 @@ const Proveedores = () => {
 
     const tipoId = 1;
 
-    // Función para obtener productos filtrados por tipo
     const fetchArticulos = async () => {
         try {
             const response = await axios.get("http://3.147.242.40/api/articulo");
@@ -133,10 +132,18 @@ const Proveedores = () => {
             <Button label="Eliminar" icon="pi pi-check" className="p-button-danger" onClick={deleteProveedor} />
         </React.Fragment>
     );
+
     const articulosMap = articulos.reduce((acc, articulo) => {
         acc[articulo.value] = articulo.label;
         return acc;
     }, {});
+
+    // Añadir logs para depuración
+    useEffect(() => {
+        console.log("Proveedor:", proveedor);
+        console.log("Articulos Map:", articulosMap);
+    }, [proveedor, articulosMap]);
+
     const [filtroGlobal, setFiltroGlobal] = useState('');
 
     const onFiltroGlobalChange = (e) => {
@@ -226,7 +233,7 @@ const Proveedores = () => {
                 <div className="p-field">
                     <label htmlFor="articulos" className="font-weight-bold">Artículos</label>
                     <ul>
-                        {proveedor?.lista_materiales.map(id => (
+                        {proveedor?.lista_materiales?.map(id => (
                             <li key={id}>{articulosMap[id]}</li>
                         ))}
                     </ul>
