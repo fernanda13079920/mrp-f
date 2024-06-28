@@ -144,7 +144,6 @@ const Produccion = () => {
                     headStyles: { fillColor: [41, 128, 185] },
                     alternateRowStyles: { fillColor: [240, 240, 240] }
                 });
-                doc.save('produccion.pdf');
                 // Generar el Blob del PDF
                 const pdfBlob = doc.output('blob');
 

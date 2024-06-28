@@ -16,10 +16,10 @@ const Ejecutivo = () => {
     const [rmateriasPrimas, setRMateriasPrimas] = useState([]);
     const [crecienteProductos, setCrecienteProductos] = useState([]);
     const [crecienteMateriasPrimas, setCrecienteMateriasPrimas] = useState([]);
-    const [minP, setMinP] = useState(10); // Valor mínimo de productos
-    const [minM, setMinM] = useState(10); // Valor mínimo de materias primas
-    const tipoId = 2; // Tipo de producto
-    const materiaId = 1; // Tipo de materia prima
+    const [minP, setMinP] = useState(10);
+    const [minM, setMinM] = useState(10); 
+    const tipoId = 2;
+    const materiaId = 1;
     const [produccion, setProduccion] = useState(null);
     const [producciones, setProducciones] = useState([]);
     useEffect(() => {
@@ -225,13 +225,8 @@ const Ejecutivo = () => {
 
             // Convertir los datos a formato compatible con XLSX para productos
             const wsPr = producciones.map(item => ({
-                'usuario_id_ge': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
-                'usuario_trabajador.username': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
-                'estado_produccion.descripcion': { v: item.cantidad, s: { border: { bottom: { style: 'thin' } } } },
-                'Tipo': { v: item.tipo.nombre, s: { border: { bottom: { style: 'thin' } } } },
-                'Serie': { v: item.serie, s: { border: { bottom: { style: 'thin' } } } },
-                'Materiales': { v: item.materiales.map(mat => mat.nombre).join(', '), s: { border: { bottom: { style: 'thin' } } } },
-            }));
+                'Usuario Generador': { v: item.usuario_generado.username, s: { border: { bottom: { style: 'thin' } } } },
+                }));
 
             // Crear el libro de Excel y las hojas de datos
             const wb = XLSX.utils.book_new();
@@ -241,12 +236,12 @@ const Ejecutivo = () => {
             applyBorders(wsProducciones, producciones.length + 1);
 
             // Añadir las hojas al libro de Excel
-            XLSX.utils.book_append_sheet(wb, wsProducciones, 'Productos');
+            XLSX.utils.book_append_sheet(wb, wsProducciones, 'Producciones');
 
             // Generar el archivo Excel y descargarlo
             const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
             const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
-            FileSaver.saveAs(blob, `Inventario Actual ${new Date().toLocaleDateString()}.xlsx`);
+            FileSaver.saveAs(blob, `Orden de Produccion ${new Date().toLocaleDateString()}.xlsx`);
         } catch (error) {
             console.error('Error al obtener datos de la API:', error);
         }

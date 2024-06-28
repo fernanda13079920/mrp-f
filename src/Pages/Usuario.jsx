@@ -87,9 +87,9 @@ const Usuarios = () => {
             id: null,
             username: '',
             password: '',
-            persona: { nombre: '', apellido_p: '', apellido_m: '', correo: '', nacimiento: '', celular: '', imagen: '' },
+            persona: { nombre: '', apellido_p: '', apellido_m: '', correo: '', nacimiento: '', celular: '', imagen: '.' },
             rol: { id: '', nombre: '' },
-            photo: ''
+            photo: '.'
         });
         setSubmitted(false);
         setViewMode(false);
@@ -104,11 +104,9 @@ const Usuarios = () => {
     const saveUsuario = async () => {
         setSubmitted(true);
 
-        if (usuario.username && usuario.password && usuario.persona.nombre && usuario.persona.apellido_p && usuario.persona.correo && usuario.rol.id) {
+        if (usuario.username && usuario.password && usuario.persona.nombre && usuario.persona.apellido_p && usuario.persona.apellido_m && usuario.persona.correo && usuario.persona.nacimiento && usuario.persona.imagen && usuario.persona.celular && usuario.rol.id && usuario.photo) {
             try {
                 const payload = {
-                    ...usuario,
-                    photo: '', // Asegurar que la foto esté vacía
                 };
 
                 if (usuario.id) {
@@ -123,9 +121,9 @@ const Usuarios = () => {
                     id: null,
                     username: '',
                     password: '',
-                    persona: { nombre: '', apellido_p: '', apellido_m: '', correo: '', nacimiento: '', celular: '', imagen: '' },
+                    persona: { nombre: '', apellido_p: '', apellido_m: '', correo: '', nacimiento: '', celular: '', imagen: '.' },
                     rol: { id: '', nombre: '' },
-                    photo: ''
+                    photo: '.'
                 });
             } catch (error) {
                 console.error("Error saving usuario:", error);

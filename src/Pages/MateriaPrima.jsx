@@ -170,7 +170,7 @@ const MateriasPrimas = () => {
             <div className="card shadow p-4">
                 <h1 className="text-primary mb-4">Listado de Materia Prima </h1>
                 {authData.permisos.includes(PERMISOS.CREATE) && (
-                    <Button label="Nuevo Producto" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
+                    <Button label="Nueva Materia Prima" icon="pi pi-plus" className="p-button-success mb-4" onClick={openNew} />
                 )}
                 <div className="p-field">
                     <label htmlFor="filtroGlobal" className="font-weight-bold">Buscar</label>
@@ -195,7 +195,7 @@ const MateriasPrimas = () => {
                     )} style={{ textAlign: 'center', width: '8em' }} />
                 </DataTable>
 
-                <Dialog visible={productDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`${producto && producto.id? 'Editar' : 'Nuevo'} Producto`} modal className="p-fluid" onHide={hideDialog}>
+                <Dialog visible={productDialog} style={{ width: '30rem', paddingBottom: '0' }} header={`${producto && producto.id? 'Editar' : 'Nueva'} Materia Prima`} modal className="p-fluid" onHide={hideDialog}>
                     
                     <div className="p-field">
                         <label htmlFor="nombre" className="font-weight-bold">Nombre</label>
