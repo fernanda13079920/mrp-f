@@ -236,13 +236,21 @@ const linksArray = [
         label: "Orden de Produccion",
         to: "/orden-produccion",
       },
+    ],
+  },
+  {
+    label: "Compra",
+    subMenu: [
+      {
+        label: "Proveedor",
+        to: "/proveedor",
+      },
       {
         label: "Orden de Compra",
         to: "/orden-compra",
       },
     ],
   },
-  
 ];
 
 const secondarylinksArray = [

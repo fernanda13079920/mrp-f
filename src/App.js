@@ -92,7 +92,7 @@ function App() {
                     <Route path="/lista-proceso" element={<ListaProcesos />} />
                     <Route path="/estante" element={<Estantes />} />
                     <Route path="/ubicacion-articulo" element={<UbicacionArticulos />} />
-                    <Route path="/proveedores" element={<Proveedores />} />
+                    <Route path="/proveedor" element={<Proveedores />} />
                     <Route path="/orden-produccion" element={<OrdenProduccion />} />
                     <Route path="/orden-compra" element={<OrdenCompra/>} />
 
