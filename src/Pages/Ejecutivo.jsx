@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
+import { Button } from 'primereact/button';
 import 'primeicons/primeicons.css';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
@@ -15,19 +16,31 @@ const Ejecutivo = () => {
     const [rmateriasPrimas, setRMateriasPrimas] = useState([]);
     const [crecienteProductos, setCrecienteProductos] = useState([]);
     const [crecienteMateriasPrimas, setCrecienteMateriasPrimas] = useState([]);
-    const [minP, setMinP] = useState(0); // Valor mínimo de productos
-    const [minM, setMinM] = useState(0); // Valor mínimo de materias primas
+    const [minP, setMinP] = useState(10); // Valor mínimo de productos
+    const [minM, setMinM] = useState(10); // Valor mínimo de materias primas
     const tipoId = 2; // Tipo de producto
     const materiaId = 1; // Tipo de materia prima
-
+    const [produccion, setProduccion] = useState(null);
+    const [producciones, setProducciones] = useState([]);
     useEffect(() => {
-        fetchProductos();
-        fetchMateriasPrimas();
-        fetchRProductos();
-        fetchRMateriasPrimas();
-        fetchProductosCrecientes();
-        fetchMateriasPrimasCrecientes();
+        fetchData();
     }, []);
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            await Promise.all([
+                fetchProductos(),
+                fetchMateriasPrimas(),
+                fetchRProductos(),
+                fetchRMateriasPrimas(),
+                fetchProductosCrecientes(),
+                fetchMateriasPrimasCrecientes()
+            ]);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+        setLoading(false);
+    };
 
     const fetchProductos = async () => {
         try {
@@ -36,7 +49,7 @@ const Ejecutivo = () => {
             const filteredProductos = allProductos.filter(producto => producto.tipo_id === tipoId);
             setProductos(filteredProductos);
         } catch (error) {
-            console.error("Error al obtener productos:", error);
+            console.error("Error fetching productos:", error);
         }
     };
 
@@ -47,7 +60,7 @@ const Ejecutivo = () => {
             const filteredMateriasPrimas = allMateriasPrimas.filter(materia => materia.tipo_id === materiaId);
             setMateriasPrimas(filteredMateriasPrimas);
         } catch (error) {
-            console.error("Error al obtener materias primas:", error);
+            console.error("Error fetching materias primas:", error);
         }
     };
 
@@ -55,11 +68,10 @@ const Ejecutivo = () => {
         try {
             const response = await axios.get("http://3.147.242.40/api/articulo");
             const allProductos = response.data.data;
-            const filteredProductos = allProductos.filter(producto => producto.tipo_id === tipoId);
-            const filteredRProductos = filteredProductos.filter(producto => producto.cantidad < minP);
-            setRProductos(filteredRProductos);
+            const filteredProductos = allProductos.filter(producto => producto.tipo_id === tipoId && producto.cantidad < minP);
+            setRProductos(filteredProductos);
         } catch (error) {
-            console.error("Error al obtener productos:", error);
+            console.error("Error fetching rproductos:", error);
         }
     };
 
@@ -67,11 +79,10 @@ const Ejecutivo = () => {
         try {
             const response = await axios.get("http://3.147.242.40/api/articulo");
             const allMateriasPrimas = response.data.data;
-            const filteredMateriasPrimas = allMateriasPrimas.filter(materia => materia.tipo_id === materiaId);
-            const filteredRMateriasPrimas = filteredMateriasPrimas.filter(materia => materia.cantidad < minM);
-            setRMateriasPrimas(filteredRMateriasPrimas);
+            const filteredMateriasPrimas = allMateriasPrimas.filter(materia => materia.tipo_id === materiaId && materia.cantidad < minM);
+            setRMateriasPrimas(filteredMateriasPrimas);
         } catch (error) {
-            console.error("Error al obtener materias primas:", error);
+            console.error("Error fetching rmateriasPrimas:", error);
         }
     };
 
@@ -84,7 +95,7 @@ const Ejecutivo = () => {
             const filteredCrecienteProductos = allProductos.filter(producto => new Date(producto.fecha_creacion) >= fechaLimite && producto.tipo_id === tipoId);
             setCrecienteProductos(filteredCrecienteProductos);
         } catch (error) {
-            console.error("Error al obtener productos creados recientemente:", error);
+            console.error("Error fetching productos creados recientemente:", error);
         }
     };
 
@@ -97,16 +108,21 @@ const Ejecutivo = () => {
             const filteredCrecienteMateriasPrimas = allMateriasPrimas.filter(materia => new Date(materia.fecha_creacion) >= fechaLimite && materia.tipo_id === materiaId);
             setCrecienteMateriasPrimas(filteredCrecienteMateriasPrimas);
         } catch (error) {
-            console.error("Error al obtener materias primas creadas recientemente:", error);
+            console.error("Error fetching materias primas creadas recientemente:", error);
         }
     };
-
+    const fetchProducciones = async () => {
+        try {
+            const response = await axios.get("http://3.147.242.40/api/orden-produccion");
+            setProducciones(response.data.data);
+        } catch (error) {
+            console.error("Error fetching producciones:", error);
+        }
+    };
     const fetchDataAndExport = async () => {
         setLoading(true);
-
         try {
-            // Esperar a que se carguen todos los datos necesarios antes de continuar
-            await Promise.all([fetchProductos(), fetchMateriasPrimas(), fetchRProductos(), fetchRMateriasPrimas(), fetchProductosCrecientes(), fetchMateriasPrimasCrecientes()]);
+            await fetchData();
 
             // Convertir los datos a formato compatible con XLSX para productos
             const wsP = productos.map(item => ({
@@ -201,6 +217,43 @@ const Ejecutivo = () => {
         setLoading(false);
     };
 
+
+    const fetchOrden = async () => {
+        setLoading(true);
+        try {
+            await fetchData();
+
+            // Convertir los datos a formato compatible con XLSX para productos
+            const wsPr = producciones.map(item => ({
+                'usuario_id_ge': { v: item.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'usuario_trabajador.username': { v: item.descripcion, s: { border: { bottom: { style: 'thin' } } } },
+                'estado_produccion.descripcion': { v: item.cantidad, s: { border: { bottom: { style: 'thin' } } } },
+                'Tipo': { v: item.tipo.nombre, s: { border: { bottom: { style: 'thin' } } } },
+                'Serie': { v: item.serie, s: { border: { bottom: { style: 'thin' } } } },
+                'Materiales': { v: item.materiales.map(mat => mat.nombre).join(', '), s: { border: { bottom: { style: 'thin' } } } },
+            }));
+
+            // Crear el libro de Excel y las hojas de datos
+            const wb = XLSX.utils.book_new();
+            const wsProducciones = XLSX.utils.json_to_sheet(wsPr, { headerStyles: { font: { bold: true } } });
+            
+            // Aplicar bordes a todas las celdas en ambas hojas de datos
+            applyBorders(wsProducciones, producciones.length + 1);
+
+            // Añadir las hojas al libro de Excel
+            XLSX.utils.book_append_sheet(wb, wsProducciones, 'Productos');
+
+            // Generar el archivo Excel y descargarlo
+            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+            FileSaver.saveAs(blob, `Inventario Actual ${new Date().toLocaleDateString()}.xlsx`);
+        } catch (error) {
+            console.error('Error al obtener datos de la API:', error);
+        }
+
+        setLoading(false);
+    };
+
     const applyBorders = (worksheet, rowCount) => {
         const range = XLSX.utils.decode_range(worksheet['!ref']);
         for (let R = range.s.r; R <= range.e.r; ++R) {
@@ -228,19 +281,35 @@ const Ejecutivo = () => {
     };
 
     return (
-        <div>
-            <label>
-                Valor mínimo de productos:
-                <input type="number" value={minP} onChange={(e) => setMinP(Number(e.target.value))} />
-            </label>
-            <label>
-                Valor mínimo de materias primas:
-                <input type="number" value={minM} onChange={(e) => setMinM(Number(e.target.value))} />
-            </label>
-            <button onClick={fetchDataAndExport} disabled={loading}>
-                {loading ? 'Exportando...' : 'Exportar a Excel'}
-            </button>
+        <div className="container mt-4">
+            <div className="card shadow p-4">
+                <h1 className="text-primary mb-4">Reporte de inventario</h1>
+            
+            <div className="d-flex justify-content-center mt-3">
+                    <Button
+                      label={loading ? 'Exportando...' : 'Exportar a Excel'}
+                      type="submit"
+                      className="p-button-success"
+                      disabled={loading}
+                      onClick={fetchDataAndExport}
+                    />
+                  </div>
+            </div>
+            <div className="card shadow p-4">
+                <h1 className="text-primary mb-4">Reporte de Ordenes</h1>
+            
+            <div className="d-flex justify-content-center mt-3">
+                    <Button
+                      label={loading ? 'Exportando...' : 'Exportar a Excel'}
+                      type="submit"
+                      className="p-button-success"
+                      disabled={loading}
+                      onClick={fetchOrden}
+                    />
+                  </div>
+            </div>
         </div>
+        
     );
 };
 

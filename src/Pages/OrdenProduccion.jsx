@@ -16,11 +16,13 @@ import 'primeflex/primeflex.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import styled from 'styled-components';
 import { AuthContext } from '../context/authContext';
+
 const PERMISOS = {
     CREATE: 42,
     EDIT: 43,
     DELETE: 44
 };
+
 const Produccion = () => {
     const { authData } = useContext(AuthContext);
     const [producciones, setProducciones] = useState([]);
@@ -29,6 +31,7 @@ const Produccion = () => {
     const [produccion, setProduccion] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [productDialog, setProductDialog] = useState(false);
+    const [deleteDialog, setDeleteDialog] = useState(false);
 
     const fetchProducciones = async () => {
         try {
@@ -169,22 +172,14 @@ const Produccion = () => {
                     }
                 });
 
-                // const response = await axios.post(`http://127.0.0.1:8000/api/orden-produccion`, formData, {
-                //     // headers: {
-                //     //     'Content-Type': 'multipart/form-data'
-                //     // }
-                // });
-                console.log('Response:', response);
-
                 setProductDialog(false);
-                // setProduccion(null);
-                // fetchProducciones();
+                setProduccion(null);
+                fetchProducciones();
             } catch (error) {
                 console.log("Error saving produccion:", error);
             }
         }
     };
-
 
     const editProduccion = (produccion) => {
         setProduccion(produccion);
@@ -193,17 +188,25 @@ const Produccion = () => {
 
     const confirmDeleteProduccion = (produccion) => {
         setProduccion(produccion);
+        setDeleteDialog(true);
+    };
+
+    const hideDeleteDialog = () => {
+        setDeleteDialog(false);
     };
 
     const deleteProduccion = async () => {
         try {
-            await axios.delete(`http://3.147.242.40/api/produccion/${produccion.id}`);
+            console.log(`Deleting produccion with ID: ${produccion.id}`);
+            await axios.delete(`http://3.147.242.40/api/orden-produccion/${produccion.id}`);
             fetchProducciones();
             setProduccion(null);
+            setDeleteDialog(false);
         } catch (error) {
             console.log("Error deleting produccion:", error);
         }
     };
+
     const [filtroGlobal, setFiltroGlobal] = useState('');
 
     const onFiltroGlobalChange = (e) => {
@@ -212,11 +215,11 @@ const Produccion = () => {
 
     const filterGlobal = (producciones) => {
         return producciones.filter(produccion =>
-            //produccion.usuario_generado.username.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
-            produccion.usuario_trabajador.username.toLowerCase().includes(filtroGlobal.toLowerCase()) ||
             produccion.estado_produccion.descripcion.toLowerCase().includes(filtroGlobal.toLowerCase())
         );
     };
+
+
     return (
         <div className="container mt-4">
             <div className="card shadow p-4">
@@ -229,15 +232,13 @@ const Produccion = () => {
                     <InputText id="filtroGlobal" value={filtroGlobal} onChange={onFiltroGlobalChange} className="form-control mb-4" />
                 </div>
                 <DataTable value={filterGlobal(producciones)} className="p-datatable-sm">
-                    <Column field="usuario_generado.username" header="Usuario Generado" sortable></Column>
+                    <Column field="usuario_generado.username" header="Usuario Generador" sortable></Column>
                     <Column field="usuario_trabajador.username" header="Usuario Trabajador" sortable></Column>
                     <Column field="estado_produccion.descripcion" header="Estado Producción" sortable></Column>
                     <Column body={(rowData) => (
                         <Button label="Abrir PDF" icon="pi pi-file-pdf" className="p-button-rounded p-button-outlined p-button-danger p-m-2" onClick={
                             () => {
-                                // console.log(rowData.pdf_data);
-                                window.open(rowData.pdf_data, '_blank')
-                                // window.open(rowData.pdf_url, '_blank')
+                                window.open(rowData.pdf_data, '_blank');
                             }
                         } />
                     )}></Column>
@@ -263,7 +264,7 @@ const Produccion = () => {
                         <label htmlFor="productos">Agregar Producto</label>
                         <MultiSelect
                             id="productos"
-                            value={produccion?.productos.map(p => p.id) || []}
+                            value={produccion?.productos?.map(p => p.id) || []}
                             options={productos.map(p => ({ label: p.nombre, value: p.id }))}
                             onChange={onProductoChange}
                             optionLabel="label"
@@ -277,7 +278,7 @@ const Produccion = () => {
                     </div>
 
                     {/* Renderizar la cantidad de cada material */}
-                    {produccion?.productos.map(producto => {
+                    {produccion?.productos?.map(producto => {
                         const productName = productos.find(p => p.id === producto.id)?.nombre || 'Desconocido';
                         return (
                             <div className="p-field" key={producto.id}>
@@ -289,6 +290,18 @@ const Produccion = () => {
                     <div className="p-d-flex p-jc-end mt-5">
                         <Button label="Cancelar" icon="pi pi-times" className="p-button-danger p-ml-2" onClick={hideDialog} />
                         <Button label="Guardar" icon="pi pi-check" className="p-button-success p-ml-2" onClick={saveProduccion} />
+                    </div>
+                </Dialog>
+
+                <Dialog visible={deleteDialog} style={{ width: '350px' }} header="Confirmar" modal footer={(
+                    <div>
+                        <Button label="No" icon="pi pi-times" className="p-button-text" onClick={hideDeleteDialog} />
+                        <Button label="Sí" icon="pi pi-check" className="p-button-text" onClick={deleteProduccion} />
+                    </div>
+                )} onHide={hideDeleteDialog}>
+                    <div className="confirmation-content">
+                        <i className="pi pi-exclamation-triangle" style={{ fontSize: '2rem' }}></i>
+                        {produccion && <span>¿Estás seguro de que quieres eliminar <b>{produccion.id}</b>?</span>}
                     </div>
                 </Dialog>
             </div>

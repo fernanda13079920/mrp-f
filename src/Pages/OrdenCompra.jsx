@@ -78,7 +78,7 @@ const Compra = () => {
     }, []);
 
     const openNew = () => {
-        setCompra({ usuario_id_ge: authData.id, usuario_id_ges: null, proveedor_id: null, productos: [] });
+        setCompra({ usuario_id_gen: authData.id, usuario_id_ges: null, proveedor_id: null, productos: [] });
         setProductDialog(true);
     };
 
